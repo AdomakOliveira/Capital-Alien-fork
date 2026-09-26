@@ -46,15 +46,15 @@ struct Player{
 
 struct EventDecision {
     EVENT_ACTION action = NONE;
-    int houseId = -1;
+    int8_t houseId = -1;
 };
 
 struct Auction {
     bool active = false;
-    int houseId = -1;
-    int currentPlayer = -1;
+    int8_t houseId = -1;
+    int8_t currentPlayer = -1;
     uint32_t currentBid = 0;
-    int highestBidder = -1;
+    int8_t highestBidder = -1;
 };
 
 struct LiquidationDecision {

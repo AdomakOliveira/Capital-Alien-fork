@@ -313,12 +313,12 @@ void taxesEvent(Game& game, Player& player) {
     }
 }
 
-void teleportEvent(Player& player) {
+void PrisionTPEvent(Player& player) {
     SetHouse(player, 10);
     player.arrested = true;
 }
 
-uint8_t ownerOfHowMany(Game& game, Player& player, House& house) {
+uint8_t GetPropCount(Game& game, Player& player, House& house) {
     int count = 0;
     if(house.type == COMPANY) {
         if(game.houses[12].owner == player.ID) count++;
@@ -503,7 +503,7 @@ void eventSelector(Game& game, House& house, Player& player, uint8_t dice) {
         taxesEvent(game, player);
         break;
     case TELEPORT:
-        teleportEvent(player);
+        PrisionTPEvent(player);
         break;
     }
 }
