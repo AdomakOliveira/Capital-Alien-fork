@@ -30,8 +30,8 @@ void RenderMoney(Game game){
 // 2. Menu Inicial (com opções JOGAR e SAIR)
 // ----------------------------------------------------------------------------
 
-static bool emMenu = true;  // true enquanto o jogo estiver mostrando o menu inicial
-static int opcaoMenu = 0;   // opção selecionada no menu: 0 = JOGAR, 1 = SAIR
+bool emMenu = true;  // true enquanto o jogo estiver mostrando o menu inicial
+int opcaoMenu = 0;   // opção selecionada no menu: 0 = JOGAR, 1 = SAIR
 
 bool IsInMenu(){
     return emMenu;
@@ -120,12 +120,12 @@ void RenderMenu(Game& game){
 // 3. Botões de Ação do Jogo e Feedback Visual na Tela
 // ----------------------------------------------------------------------------
 
-static string mensagemFeedback = ""; // Última mensagem a mostrar na caixa de feedback
-static float tempoFeedback = 0.0f;   // Quanto tempo (em segundos) a mensagem ainda fica visível
+string mensagemFeedback = ""; // Última mensagem a mostrar na caixa de feedback
+float tempoFeedback = 0.0f;   // Quanto tempo (em segundos) a mensagem ainda fica visível
 
 // Desenha um botão retangular com texto. Fica amarelo quando o mouse está
 // por cima. Retorna true no exato quadro em que o botão é clicado.
-static bool BotaoAcao(Rectangle area, const char* texto){
+bool BotaoAcao(Rectangle area, const char* texto){
     Vector2 mouse = GetMousePosition();
     bool mouseSobre = CheckCollisionPointRec(mouse, area);
 

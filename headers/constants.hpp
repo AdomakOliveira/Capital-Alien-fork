@@ -3,6 +3,8 @@
 
 #include "house.hpp"
 
+#define INITMONEY 2000
+
 const int ScreenW = 850;
 const int ScreenH = 500;
 
@@ -10,44 +12,44 @@ const House BOARD_DATA[] = {
 // Nome - Cor - Type - Aluguel - Comprar - Residencia  - Hipoteca - Dono - Hipotecada? - ResidenciasConstruidas
     {"Início", WHITE, START}, // Casa Inicial - 0
     {"Av. Sumaré", PURPLE, NORMAL, 4, 60, 50, 30}, // Casa Normal - 1
-    {"Cofre", WHITE, 0, 0, M0, 0, CHEST, -1}, // Cofre - 2
+    {"Cofre", WHITE, CHEST}, // Cofre - 2
     {"Praça da Sé", PURPLE, NORMAL, 2, 60, 50, 30}, // Casa Normal - 3
     {"Imposto de Renda", WHITE, TAXES}, // Taxas - 4
-    {"Estação de Metrô Maracanã", WHITE, 0, 200, M0, 0, RAILROAD, -1}, // Train Station - 5
-    {"Rua 25 de Março", GRAY, 0, 100, M0, 0, NORMAL, -1}, // Casa Normal - 6
-    {"Chance", WHITE, 0, 0, M0, 0, QUESTION_MARK, -1}, // Chance - 7
-    {"Av. São João", GRAY, 0, 100, M0, 0, NORMAL, -1}, // Casa Normal - 8
-    {"Av. Paulista", GRAY, 0, 120, M0, 0, NORMAL, -1}, // Casa Normal - 9
-    {"Prisão", WHITE, 0, 0, M0, 0, PRISION, -1}, // Jail - 10
-    {"Av. Vieira Souto", PINK, 0, 140, M0, 0, NORMAL, -1}, // Casa Normal - 11
-    {"Companhia Elétrica", WHITE, 0, 150, M0, 0, COMPANY, -1}, // Company - 12
-    {"Niterói", PINK, 0, 140, M0, 0, NORMAL, -1}, // Casa Normal - 13
-    {"Av. Atlântica", PINK, 0, 160, M0, 0, NORMAL, -1}, // Casa Normal - 14
-    {"Estação de Metrô Carioca", WHITE, 0, 200, M0, 0, RAILROAD, -1}, // Train Station - 15
-    {"Av. Presidente JK", ORANGE, 0, 180, M0, 0, NORMAL, -1}, // Casa Normal - 16
-    {"Cofre", WHITE, 0, 0, M0, 0, CHEST, -1}, // Cofre - 17
-    {"Av. Engenheiro Luis Carlos Berrini", ORANGE, 0, 180, M0, 0, NORMAL, -1}, // Casa Normal - 18
-    {"Av. Brigadeiro Faria Lima", ORANGE, 0, 200, M0, 0, NORMAL, -1}, // Casa Normal - 19
-    {"Estacionamento", WHITE, 0, 0, M0, 0, PARK, -1}, // Park - 20
-    {"Ipanema", RED, 0, 220, M0, 0, NORMAL, -1}, // Casa Normal - 21
-    {"Chance", WHITE, 0, 0, M0, 0, QUESTION_MARK, -1}, // Chance - 22
-    {"Leblon", RED, 0, 220, M0, 0, NORMAL, -1}, // Casa Normal - 23
-    {"Copacabana", RED, 0, 240, M0, 0, NORMAL, -1}, // Casa Normal - 24
-    {"Estação de Metrô Consolação", WHITE, 0, 200, M0, 0, RAILROAD, -1}, // Train Station - 25
-    {"Av. Cidade Jardim", YELLOW, 0, 260, M0, 0, NORMAL, -1}, // Casa Normal - 26
-    {"Pacaembu", YELLOW, 0, 260, M0, 0, NORMAL, -1}, // Casa Normal - 27
-    {"Companhia de Água", WHITE, 0, 150, M0, 0, COMPANY, -1}, // Company - 28
-    {"Ibirapuera", YELLOW, 0, 280, M0, 0, NORMAL, -1}, // Casa Normal - 29
-    {"Vá para Prisão", WHITE, 0, 0, M0, 0, TELEPORT, -1}, // Go to Jail - 30
-    {"Barra da Tijuca", GREEN, 0, 300, M0, 0, NORMAL, -1}, // Casa Normal - 31
-    {"Jardim Botânico", GREEN, 0, 300, M0, 0, NORMAL, -1}, // Casa Normal - 32
-    {"Cofre", WHITE, 0, 0, M0, 0, CHEST, -1}, // Cofre - 33
-    {"Lagoa Rodrigo Freitas", GREEN, 0, 320, M0, 0, NORMAL, -1}, // Casa Normal - 34
-    {"Estação de Metrô República", WHITE, 0, 200, M0, 0, RAILROAD, -1}, // Train Station - 35
-    {"Chance", WHITE, 0, 0, M0, 0, QUESTION_MARK, -1}, // Chance - 36
-    {"Av. Morumbi", BLUE, 0, 350, M0, 0, NORMAL, -1}, // Casa Normal - 37
-    {"Taxa de Riqueza", WHITE, 0, 0, M0, 0, TAXES, -1}, // Taxas - 38
-    {"Rua Oscar Freire", BLUE, 0, 400, M0, 0, NORMAL, -1}, // Casa Normal - 39
+    {"Estação de Metrô Maracanã", WHITE, RAILROAD, 0, 200, 0, 100}, // Train Station - 5
+    {"Rua 25 de Março", GRAY, NORMAL, 7, 100, 90, 50}, // Casa Normal - 6
+    {"Chance", WHITE, QUESTION_MARK}, // Chance - 7
+    {"Av. São João", GRAY, NORMAL, 7, 100, 90, 50}, // Casa Normal - 8
+    {"Av. Paulista", GRAY, NORMAL, 8, 120, 110, 60}, // Casa Normal - 9
+    {"Prisão", WHITE, PRISION}, // Jail - 10
+    {"Av. Vieira Souto", PINK, NORMAL, 9, 140, 130, 70}, // Casa Normal - 11
+    {"Companhia Elétrica", WHITE, COMPANY, 0, 150, 0, 75}, // Company - 12
+    {"Niterói", PINK, NORMAL, 9, 140, 130, 70}, // Casa Normal - 13
+    {"Av. Atlântica", PINK, NORMAL, 11, 160, 150, 80}, // Casa Normal - 14
+    {"Estação de Metrô Carioca", WHITE, RAILROAD, 0, 200, 0, 100}, // Train Station - 15
+    {"Av. Presidente JK", ORANGE, NORMAL, 12, 180, 170, 90}, // Casa Normal - 16
+    {"Cofre", WHITE, CHEST}, // Cofre - 17
+    {"Av. Engenheiro Luis Carlos Berrini", ORANGE, NORMAL, 12, 180, 170, 90}, // Casa Normal - 18
+    {"Av. Brigadeiro Faria Lima", ORANGE, NORMAL, 13, 200, 190, 100}, // Casa Normal - 19
+    {"Estacionamento", WHITE, PARK}, // Park - 20
+    {"Ipanema", RED, NORMAL, 15, 220, 210, 110}, // Casa Normal - 21
+    {"Chance", WHITE, QUESTION_MARK}, // Chance - 22
+    {"Leblon", RED, NORMAL, 15, 220, 210, 110}, // Casa Normal - 23
+    {"Copacabana", RED, NORMAL, 16, 240, 230, 120}, // Casa Normal - 24
+    {"Estação de Metrô Consolação", WHITE, RAILROAD, 0, 200, 0, 100}, // Train Station - 25
+    {"Av. Cidade Jardim", YELLOW, NORMAL, 17, 260, 250, 130}, // Casa Normal - 26
+    {"Pacaembu", YELLOW, NORMAL, 17, 260, 250, 130}, // Casa Normal - 27
+    {"Companhia de Água", WHITE, COMPANY, 0, 150, 0, 75}, // Company - 28
+    {"Ibirapuera", YELLOW, NORMAL, 19, 280, 270, 140}, // Casa Normal - 29
+    {"Vá para Prisão", WHITE, TELEPORT}, // Go to Jail - 30
+    {"Barra da Tijuca", GREEN, NORMAL, 20, 300, 290, 150}, // Casa Normal - 31
+    {"Jardim Botânico", GREEN, NORMAL, 20, 300, 290, 150}, // Casa Normal - 32
+    {"Cofre", WHITE, CHEST}, // Cofre - 33
+    {"Lagoa Rodrigo Freitas", GREEN, NORMAL, 21, 320, 310, 160}, // Casa Normal - 34
+    {"Estação de Metrô República", WHITE, RAILROAD, 0, 200, 0, 100}, // Train Station - 35
+    {"Chance", WHITE, QUESTION_MARK}, // Chance - 36
+    {"Av. Morumbi", BLUE, NORMAL, 23, 350, 340, 175}, // Casa Normal - 37
+    {"Taxa de Riqueza", WHITE, TAXES}, // Taxas - 38
+    {"Rua Oscar Freire", BLUE, NORMAL, 27, 400, 390, 200}, // Casa Normal - 39
 };
 
 const Card CARDS_CHANCE_DATA[] = {

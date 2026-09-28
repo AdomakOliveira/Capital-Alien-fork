@@ -7,8 +7,8 @@
 
 using namespace std;
 
-Player Constructor(uint8_t ID, const string& name, Color newColor){
-    return Player{ID, name, 0, newColor, 0};
+Player Constructor(uint8_t ID, const string& name, Color newColor, uint32_t initialMoney){
+    return Player{ID, name, initialMoney, newColor};
 }
 
 uint8_t GetID(const Player& player){

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Player Constructor(uint8_t ID, const string& name, Color newColor);
+Player Constructor(uint8_t ID, const string& name, Color newColor, uint32_t initialMoney);
 
 uint8_t GetID(const Player& player);
 

@@ -58,8 +58,8 @@ void Init(){
 
     Init(mainGame, array_size(BOARD_DATA), 2); // Chama o Init(Game&, int, int) de tabletop.cpp
 
-    GetPlayer(mainGame, 0) = Constructor(0, "Zandiano", RED);
-    GetPlayer(mainGame, 1) = Constructor(1, "Kryll", BLUE);
+    GetPlayer(mainGame, 0) = Constructor(0, "Zandiano", RED, INITMONEY);
+    GetPlayer(mainGame, 1) = Constructor(1, "Kryll", BLUE, INITMONEY);
 }
 
 void UpdatePre(){
@@ -180,7 +180,7 @@ string ActionBuild(){
     Player& player = GetPlayer(mainGame);
     House& house = GetHouse(mainGame, GetPos(player));
 
-    if(BuildHouse(mainGame, player, house)){
+    if(BuildHouse(mainGame, house, player)){
         string tipo = (house.housesBuilt >= 5) ? "um hotel" : "uma casa";
         return GetName(player) + " construiu " + tipo + " em " + house.name;
     }

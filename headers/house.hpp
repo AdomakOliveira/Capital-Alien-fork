@@ -19,4 +19,6 @@ bool Buy(House& house, Player& player);
 
 uint16_t PayRent(Game& game, const House& house, Player& payer);
 
+bool BuildHouse(Game& game, House& house, Player& player);
+
 #endif

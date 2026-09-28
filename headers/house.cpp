@@ -5,8 +5,8 @@
 #include "player.hpp"
 
 
-House Constructor(const string& name, Color color, uint8_t value, uint8_t price, uint8_t FLAGS, uint8_t tier, HSETYPE type){
-    return House{name, color, value, price, FLAGS, tier, (uint8_t)type, -1};
+House Constructor(const string& name, Color color, uint8_t value, uint8_t price, uint8_t tier, HSETYPE type){
+    return House{name, color, (uint8_t)type, value, price};
 }
 
 bool SetOwner(House& house, int8_t newOwner){
@@ -45,4 +45,8 @@ bool Buy(House& house, Player& player){
 uint16_t PayRent(Game& game, const House& house, Player& payer){
     TransferMoney(payer, GetPlayer(game, uint8_t(GetOwner(house))), house.value);
     return house.value;
+}
+
+bool BuildHouse(Game& game, House& house, Player& player){
+    return true;
 }
