@@ -283,7 +283,7 @@ void getChanceCard(Game& game, Player& player) {
 
 void taxesEvent(Game& game, Player& player) {
     if(player.houseIndex == 4) {
-        PAYMENT_STATUS status = VerifyMoney(game, player, 2010);
+        PAYMENT_STATUS status = VerifyMoney(game, player, 200);
         if(status == CAN_PAY) {
             RemoveMoney(player, 200);
         } else if(status == NEED_LIQUIDATION) {
@@ -340,8 +340,44 @@ uint8_t GetPropCount(Game& game, Player& player, House& house) {
         }
         return count;
     }
+    return 0;
 }
 
+/* Constrói uma casa (ou hotel, na 5ª construção) em um imóvel do tipo NORMAL,
+desde que o jogador seja dono de todo o grupo de cor e tenha dinheiro suficiente */
+bool BuildHouse(Game& game, Player& player, House& house) {
+    if(house.type != NORMAL) return false;
+    if(house.owner != player.ID) return false;
+    if(house.mortgaged) return false;
+    if(house.housesBuilt >= 5) return false;
+
+    uint8_t groupSize = 0;
+    uint8_t ownedInGroup = 0;
+    for(int i = 0; i < game.qntHouse; i++) {
+        House& current = game.houses[i];
+        if(current.type == NORMAL && ColorToInt(current.color) == ColorToInt(house.color)) {
+            groupSize++;
+            if(current.owner == player.ID) ownedInGroup++;
+        }
+    }
+    if(ownedInGroup < groupSize) return false;
+
+    if(player.money < house.residencePrice) return false;
+
+    RemoveMoney(player, house.residencePrice);
+    house.housesBuilt++;
+
+    if(house.housesBuilt == 5) {
+        game.hotelsBuilt++;
+    } else {
+        game.housesBuilt++;
+    }
+
+    return true;
+}
+
+// Inicia um leilão para a casa em que o jogador parou (usado quando um
+// jogador decide não comprar a propriedade)
 void auctionEvent(Game& game, Player& player, House& house) {
     game.eventDecision.action = EVENT_ACTION::AUCTION;
     game.eventDecision.houseId = player.houseIndex;
@@ -362,7 +398,7 @@ void companyEvent(Game& game, Player& player, House& house, uint8_t dice) {
         return;
     }
     if(house.owner != -1) {
-        if(ownerOfHowMany(game, game.players[house.owner], house) == 2) {
+        if(GetPropCount(game, game.players[house.owner], house) == 2) {
             PAYMENT_STATUS status = VerifyMoney(game, player, 10 * dice);
             if(status == CAN_PAY) {
                TransferMoney(player, game.players[house.owner], 10 * dice); 

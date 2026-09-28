@@ -11,15 +11,17 @@ void Init(Game& game, int qntHouse, int qntPlayers){
     game.qntHouse = qntHouse;
     game.qntPlayers = qntPlayers;
 
-    generateCards(game.chanceCards, 0);
-    generateCards(game.chestCards, 1);
+    generateCards(game.chanceCards, 0); // 0 = baralho de Chance
+    generateCards(game.chestCards, 1);  // 1 = baralho de Cofre
 
     for(int i = 0; i < qntHouse; i++){
         game.houses[i] = BOARD_DATA[i];
     }
 
+    Color defaultColors[4] = {RED, BLUE, GREEN, ORANGE};
+
     for(int i = 0; i < qntPlayers; i++){
-        game.players[i] = Constructor(i, " Player" + i, RED);
+        game.players[i] = Constructor(i, "Jogador " + to_string(i + 1), defaultColors[i % 4]);
     }
 }
 
@@ -48,7 +50,6 @@ uint16_t GetRound(const Game& game){
 }
 
 void NextRound(Game& game){
-    NextHouse(GetPlayer(game), GetHouseQnt(game));
     game.round++;
 }
 

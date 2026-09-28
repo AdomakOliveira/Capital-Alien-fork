@@ -11,7 +11,7 @@ House Constructor(const string& name, Color color, uint8_t value, uint8_t price,
 
 bool SetOwner(House& house, int8_t newOwner){
     int8_t lastOwner = house.owner;
-    if(house.type == NORMAL){
+    if(house.type == NORMAL || house.type == RAILROAD || house.type == COMPANY){
         house.owner = newOwner;
     }
     return lastOwner != house.owner;
@@ -30,10 +30,10 @@ int8_t GetOwner(const House& house){
 }
 
 bool Buy(House& house, Player& player){
-    if(house.owner){
-        //ToDo
+    if(house.owner != -1){
+        return false;
     }
-    else if(player.money < house.price || !house.price){
+    if(player.money < house.price || !house.price){
         return false;
     }
 
