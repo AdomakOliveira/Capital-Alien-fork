@@ -1,5 +1,4 @@
-#ifndef STRUCTS_HPP
-#define STRUCTS_HPP
+#pragma once
 
 #include "raylib.h"
 #include "utilities.hpp"
@@ -81,5 +80,3 @@ struct Game{
     EventDecision eventDecision;
     Auction auction;
 };
-
-#endif

@@ -26,24 +26,18 @@ void RenderMoney(Game game){
     DrawText(texto.c_str(), ScreenW - 190, 75, 24, DARKGREEN);
 }
 
-// ----------------------------------------------------------------------------
-// 2. Menu Inicial (com opções JOGAR e SAIR)
-// ----------------------------------------------------------------------------
 
-bool emMenu = true;  // true enquanto o jogo estiver mostrando o menu inicial
-int opcaoMenu = 0;   // opção selecionada no menu: 0 = JOGAR, 1 = SAIR
+bool emMenu = true;
+int opcaoMenu = 0;
 
 bool IsInMenu(){
     return emMenu;
 }
 
-// Desenha a tela de menu inicial: título, botões JOGAR/SAIR, navegação por
-// teclado (setas + Enter) ou mouse
 void RenderMenu(Game& game){
     ClearBackground(BLACK);
     DrawRectangleLines(15, 15, ScreenW - 30, ScreenH - 30, DARKGREEN);
 
-    // Banner do título
     int bannerLargura = 500;
     int bannerAltura = 80;
     int bannerX = (ScreenW - bannerLargura) / 2;
@@ -58,7 +52,6 @@ void RenderMenu(Game& game){
     int larguraSub = MeasureText("CAPITAL ALIEN - BANCO IMOBILIARIO", 16);
     DrawText("CAPITAL ALIEN - BANCO IMOBILIARIO", (ScreenW - larguraSub) / 2, bannerY + 95, 16, YELLOW);
 
-    // Navegação com setas do teclado (alterna entre as duas opções)
     if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_W) || IsKeyPressed(KEY_S)){
         if (opcaoMenu == 0){
             opcaoMenu = 1;
@@ -67,11 +60,9 @@ void RenderMenu(Game& game){
         }
     }
 
-    // Áreas clicáveis dos botões JOGAR e SAIR
     Rectangle botaoJogar = { (float)(ScreenW / 2 - 120), 245.0f, 240.0f, 45.0f };
     Rectangle botaoSair  = { (float)(ScreenW / 2 - 120), 305.0f, 240.0f, 45.0f };
 
-    // Também permite selecionar a opção passando o mouse por cima do botão
     Vector2 mouse = GetMousePosition();
     bool mouseEmJogar = CheckCollisionPointRec(mouse, botaoJogar);
     bool mouseEmSair  = CheckCollisionPointRec(mouse, botaoSair);
@@ -79,7 +70,6 @@ void RenderMenu(Game& game){
     if (mouseEmJogar) opcaoMenu = 0;
     if (mouseEmSair)  opcaoMenu = 1;
 
-    // Desenho do botão JOGAR
     if (opcaoMenu == 0){
         DrawRectangleRec(botaoJogar, DARKGREEN);
         DrawRectangleLines(botaoJogar.x, botaoJogar.y, botaoJogar.width, botaoJogar.height, GOLD);
@@ -90,7 +80,6 @@ void RenderMenu(Game& game){
         DrawText("JOGAR", botaoJogar.x + 80, botaoJogar.y + 12, 20, WHITE);
     }
 
-    // Desenho do botão SAIR
     if (opcaoMenu == 1){
         DrawRectangleRec(botaoSair, MAROON);
         DrawRectangleLines(botaoSair.x, botaoSair.y, botaoSair.width, botaoSair.height, GOLD);
@@ -104,27 +93,21 @@ void RenderMenu(Game& game){
     int larguraDica = MeasureText("Use as SETAS e ENTER, ou o MOUSE para escolher", 16);
     DrawText("Use as SETAS e ENTER, ou o MOUSE para escolher", (ScreenW - larguraDica) / 2, 385, 16, LIGHTGRAY);
 
-    // Confirma a opção selecionada com Enter ou clique do mouse
     bool clicou = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
     if (IsKeyPressed(KEY_ENTER) || clicou){
         if (opcaoMenu == 0){
-            emMenu = false; // Sai do menu e começa a partida
+            emMenu = false;
         } else if (opcaoMenu == 1){
             CloseWindow();
-            exit(0); // Fecha o jogo
+            exit(0);
         }
     }
 }
 
-// ----------------------------------------------------------------------------
-// 3. Botões de Ação do Jogo e Feedback Visual na Tela
-// ----------------------------------------------------------------------------
 
-string mensagemFeedback = ""; // Última mensagem a mostrar na caixa de feedback
-float tempoFeedback = 0.0f;   // Quanto tempo (em segundos) a mensagem ainda fica visível
+string mensagemFeedback = "";
+float tempoFeedback = 0.0f;
 
-// Desenha um botão retangular com texto. Fica amarelo quando o mouse está
-// por cima. Retorna true no exato quadro em que o botão é clicado.
 bool BotaoAcao(Rectangle area, const char* texto){
     Vector2 mouse = GetMousePosition();
     bool mouseSobre = CheckCollisionPointRec(mouse, area);
@@ -145,65 +128,58 @@ bool BotaoAcao(Rectangle area, const char* texto){
     return false;
 }
 
-// Desenha a barra de botões de ação (rolar dado, comprar, construir,
-// hipotecar, negociar, passar a vez) e a caixa de feedback com o resultado
-// da última ação
-void RenderBotoesAcao(Game& game){
+bool RenderButtons(Game& game){
     int largura = 125;
     int altura = 40;
     int espaco = 8;
     int xInicial = 18;
     int yLinha = ScreenH - 55;
+    bool pressed = false;
 
-    // 1. JOGAR DADO
     if (BotaoAcao({(float)(xInicial + 0 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "JOGAR DADO")){
         mensagemFeedback = ActionRollDice();
         tempoFeedback = 3.0f;
     }
 
-    // 2. COMPRAR
     if (BotaoAcao({(float)(xInicial + 1 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "COMPRAR")){
         mensagemFeedback = ActionBuy();
         tempoFeedback = 3.0f;
     }
 
-    // 3. CONSTRUIR
     if (BotaoAcao({(float)(xInicial + 2 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "CONSTRUIR")){
         mensagemFeedback = ActionBuild();
         tempoFeedback = 3.0f;
     }
 
-    // 4. HIPOTECAR
     if (BotaoAcao({(float)(xInicial + 3 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "HIPOTECAR")){
         mensagemFeedback = ActionMortgage();
         tempoFeedback = 3.0f;
     }
 
-    // 5. NEGOCIAR
     if (BotaoAcao({(float)(xInicial + 4 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "NEGOCIAR")){
         mensagemFeedback = ActionNegotiate();
         tempoFeedback = 3.0f;
     }
 
-    // 6. PASSAR VEZ
     if (BotaoAcao({(float)(xInicial + 5 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "PASSAR VEZ")){
         mensagemFeedback = ActionEndTurn();
         tempoFeedback = 3.0f;
     }
 
-    // Caixinha de feedback na tela
     if (tempoFeedback > 0.0f){
         tempoFeedback = tempoFeedback - GetFrameTime();
-
+        
         int caixaLargura = 420;
         int caixaAltura = 32;
         int caixaX = (ScreenW - caixaLargura) / 2;
         int caixaY = yLinha - 40;
-
+        
         DrawRectangle(caixaX, caixaY, caixaLargura, caixaAltura, BLACK);
         DrawRectangleLines(caixaX, caixaY, caixaLargura, caixaAltura, GOLD);
-
+        
         int larguraMsg = MeasureText(mensagemFeedback.c_str(), 16);
         DrawText(mensagemFeedback.c_str(), caixaX + (caixaLargura - larguraMsg) / 2, caixaY + 8, 16, YELLOW);
+        pressed = true;
     }
+    return pressed;
 }

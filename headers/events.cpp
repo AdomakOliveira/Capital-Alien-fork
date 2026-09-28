@@ -1,3 +1,5 @@
+#include <cstdint>
+#include "events.hpp"
 #include "raylib.h"
 #include "structs.hpp"
 #include "constants.hpp"

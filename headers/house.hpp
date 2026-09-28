@@ -1,11 +1,11 @@
-#ifndef HOUSE_HPP
-#define HOUSE_HPP                                                                                                                                                                                                                                                                       
+#pragma once                                                                                                                                                                                                                                                                    
 
 #include <string>
 #include "raylib.h"
 #include "structs.hpp"
+#include "utilities.hpp"
 
-House Constructor(const string& name, Color color, uint8_t value, uint8_t price, uint8_t FLAGS, uint8_t tier, HSETYPE type);
+House Constructor(const string& name, Color color, uint8_t value, uint8_t price, uint8_t tier, HSETYPE type);
 
 bool SetOwner(House& house, int8_t newOwner);
 
@@ -20,5 +20,3 @@ bool Buy(House& house, Player& player);
 uint16_t PayRent(Game& game, const House& house, Player& payer);
 
 bool BuildHouse(Game& game, House& house, Player& player);
-
-#endif

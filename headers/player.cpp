@@ -1,9 +1,7 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
-
 #include <string>
 #include <cstdint>
 #include "structs.hpp"
+#include "player.hpp"
 
 using namespace std;
 
@@ -53,5 +51,3 @@ bool SetHouse(Player& player, uint8_t index){
     player.houseIndex = index;
     return !player.houseIndex;
 }
-
-#endif

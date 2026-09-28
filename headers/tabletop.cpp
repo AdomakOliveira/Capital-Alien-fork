@@ -2,6 +2,7 @@
 #include "house.hpp"
 #include "player.hpp"
 #include "constants.hpp"
+#include "tabletop.hpp"
 #include <random>
 #include <algorithm>
 
@@ -11,8 +12,8 @@ void Init(Game& game, int qntHouse, int qntPlayers){
     game.qntHouse = qntHouse;
     game.qntPlayers = qntPlayers;
 
-    generateCards(game.chanceCards, 0); // 0 = baralho de Chance
-    generateCards(game.chestCards, 1);  // 1 = baralho de Cofre
+    generateCards(game.chanceCards, 0);
+    generateCards(game.chestCards, 1);
 
     for(int i = 0; i < qntHouse; i++){
         game.houses[i] = BOARD_DATA[i];
@@ -71,17 +72,16 @@ bool SetPlayer(Game& game, uint8_t index){
     return true;
 }
 
-// Embaralhamento inicial das cartas
 void generateCards(Card cards_arr[], int FLAG) {
     std::random_device rd;
 
     std::mt19937 gen(rd());
 
-    if(FLAG) { // chestCards
+    if(FLAG) { 
         for(int i = 0; i < QNTCARDS; i++) {
             cards_arr[i] = CARDS_CHEST_DATA[i];
         }
-    } else { // chanceCards
+    } else {
         for(int i = 0; i < QNTCARDS; i++) {
             cards_arr[i] = CARDS_CHANCE_DATA[i];
         }

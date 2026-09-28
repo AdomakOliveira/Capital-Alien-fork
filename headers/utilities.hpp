@@ -1,11 +1,10 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#pragma once
 
 #include <math.h>
 
 #define array_size(arr) int(sizeof((arr))/sizeof((arr)[0]))
 
-#define MAXHOUSES 255
+#define MAXHOUSES 40
 #define MAXPLAYERS 4
 #define QNTCARDS 16
 
@@ -61,4 +60,3 @@ typedef enum{
     BUY,
     AUCTION
 } EVENT_ACTION;
-#endif

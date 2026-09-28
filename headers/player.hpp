@@ -1,5 +1,4 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
+#pragma once
 
 #include <string>
 #include <cstdint>
@@ -28,5 +27,3 @@ uint8_t GetPos(const Player& player);
 bool NextHouse(Player& player, uint8_t maxHouses);
 
 bool SetHouse(Player& player, uint8_t index);
-
-#endif

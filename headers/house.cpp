@@ -1,4 +1,5 @@
 #include <string>
+#include "house.hpp"
 #include "raylib.h"
 #include "structs.hpp"
 #include "tabletop.hpp"

@@ -1,9 +1,9 @@
-#ifndef CONSTANTS_HPP
-#define CONSTANTS_HPP
+#pragma once
 
 #include "house.hpp"
 
 #define INITMONEY 2000
+
 
 const int ScreenW = 850;
 const int ScreenH = 500;
@@ -91,5 +91,3 @@ const Card CARDS_CHEST_DATA[] = {
     {"Pagar $40 por cada casa e $115 por cada hotel", false, ESPECIAL_PAY, 0, -1},
     {"Receber $25 por organizar uma venda de bolos escolar", true, COLLECT_MONEY, 25, -1},
 }; 
-
-#endif
