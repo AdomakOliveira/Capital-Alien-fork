@@ -8,8 +8,9 @@ using namespace std;
 
 void SendFile(const Game& game, const string& filepath){
     ofstream file((filepath + "\\data.dat").c_str(), ios::binary | ios::app);
-    if(!file.is_open()){
-        cout << "Waiting..." << endl;
+    file.clear();
+    if(!file.is_open() || file.fail()){
+        cout << "Error..." << endl;
         return;
     }
 
@@ -29,16 +30,15 @@ void SendFile(const Game& game, const string& filepath){
     }
 
     file.write((const char*)&game, sizeof(Game) - sizeof(House)*MAXHOUSES - sizeof(Player)*MAXPLAYERS - sizeof(Card)*QNTCARDS*2);
-
+    file.close();
 
     cout << "Sent." << endl;
-    file.close();
 }
 
 void RetrieveFile(Game& game, const string& filepath){
-    ifstream file((filepath + "\\data.dat").c_str(), ios::binary);
-    if(!file.is_open()){
-        cout << "Waiting..." << endl;
+    ifstream file((filepath + "\\data.dat").c_str(), ios::binary );
+    if(!file.is_open() || file.fail()){
+        cout << "Error..." << endl;
         return;
     }
 
@@ -58,7 +58,7 @@ void RetrieveFile(Game& game, const string& filepath){
     }
 
     file.read((char*)&game, sizeof(Game) - sizeof(House)*MAXHOUSES - sizeof(Player)*MAXPLAYERS - sizeof(Card)*QNTCARDS*2);
+    file.close();
 
     cout << "Retrieved." << endl;
-    file.close();
 }

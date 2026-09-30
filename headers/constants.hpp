@@ -3,7 +3,7 @@
 #include "house.hpp"
 
 #define INITMONEY 2000
-#define PATH "D:\\FORfun"
+#define PATH "src\\Data"
 
 const int ScreenW = 850;
 const int ScreenH = 500;
