@@ -9,9 +9,8 @@
 #include "events.hpp"
 #include "filehandler.hpp"
 
-#define PATH "D:\\FORfun"
-
 Game mainGame;
+int clientIndex = 0;
 
 bool rolledThisTurn = false;
 bool gameOver = false;
@@ -58,9 +57,29 @@ void Init(){
     GetPlayer(mainGame, 1) = Constructor(1, "Kryll", BLUE, INITMONEY);
 }
 
-void UpdatePre(){
+void UpdatePre() {
+    if(IsInMenu()){
+        switch (GetKeyPressed()) {
+            case KEY_ONE:
+                clientIndex = 0;
+            break;
+            
+            case KEY_TWO:
+                clientIndex = 1;
+            break;
+
+            case KEY_THREE:
+                clientIndex = 2;
+            break;
+
+            case KEY_FOUR:
+                clientIndex = 3;
+            break;
+        }
+    }
     try{
-        if(!IsInMenu() && !pressedButton){
+        if(!IsInMenu() && pressedButton){
+            SendFile(mainGame, PATH);
             RetrieveFile(mainGame, PATH);
         }
     } catch (int e){
@@ -69,18 +88,10 @@ void UpdatePre(){
 }
 
 void Update(){
-
+    RefreshScreen(mainGame);
 }
 
 void UpdatePost(){
-    try{
-        if(!IsInMenu() && pressedButton){
-            SendFile(mainGame, PATH);
-            pressedButton = false;
-        }
-    } catch(int e){
-        cout << "ERROR: " << e << " when sending data" << endl;
-    }
 }
 
 void Render3D(){
@@ -90,7 +101,7 @@ void Render3D(){
 
 void Render2D(){
     if(IsInMenu()){
-        RenderMenu(mainGame);
+        RenderMenu(mainGame, clientIndex);
         return;
     }
 
@@ -98,7 +109,7 @@ void Render2D(){
     RenderRound(mainGame);
     RenderMoney(mainGame);
     try{
-        pressedButton = RenderButtons(mainGame);
+        pressedButton = RenderButtons(mainGame, clientIndex);
     } catch(int e){
         cout << "Error: " << e << " when pressing button" << endl;
     }
@@ -112,6 +123,7 @@ void Render2D(){
 void Debug(){
     std::cout << "Player: " << GetName(GetPlayer(mainGame)) << std::endl;
     std::cout << "House num: " << to_string(GetPos(GetPlayer(mainGame))) << std::endl;
+    std::cout << "Client Index: " << clientIndex << std::endl;
 }
 
 string ActionRollDice(){

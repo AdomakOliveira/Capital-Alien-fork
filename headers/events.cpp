@@ -5,6 +5,8 @@
 #include "constants.hpp"
 #include "house.hpp"
 #include "player.hpp"
+#include "game_renderer.hpp"
+#include "filehandler.hpp"
 
 uint32_t GetLiquidationValue(Game& game, Player& player) {
     uint32_t value = player.money;
@@ -511,4 +513,12 @@ void eventSelector(Game& game, House& house, Player& player, uint8_t dice) {
         PrisionTPEvent(player);
         break;
     }
+}
+
+void RefreshScreen(Game& game){
+    if(!BotaoAcao(Rectangle{20, 60, 30, 30}, "REFRESH")){
+        return;
+    }
+
+    RetrieveFile(game, PATH);
 }

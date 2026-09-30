@@ -78,20 +78,3 @@ bool BuildHouse(Game& game, House& house, Player& player){
 
     return true;
 }
-
-// Inicia um leilão para a casa em que o jogador parou (usado quando um
-// jogador decide não comprar a propriedade)
-void auctionEvent(Game& game, Player& player, House& house) {
-    game.eventDecision.action = EVENT_ACTION::AUCTION;
-    game.eventDecision.houseId = player.houseIndex;
-    game.auction.active = true;
-    game.auction.houseId = player.houseIndex;
-    game.auction.currentBid = 0;
-    game.auction.highestBidder = -1;
-    for(int i = 0; i < game.qntPlayers; i++) {
-        if(!game.players[i].bankrupt) {
-            game.auction.currentPlayer = i;
-            break;
-        }
-    }
-}

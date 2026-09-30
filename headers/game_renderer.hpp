@@ -10,8 +10,10 @@ void RenderRound(Game game);
 
 void RenderMoney(Game game);
 
-void RenderMenu(Game& game);
+void RenderMenu(Game& game, int clientIndex);
 
-bool RenderButtons(Game& game);
+bool BotaoAcao(Rectangle area, const char* texto);
+
+bool RenderButtons(Game& game, int clientIndex);
 
 bool IsInMenu();
