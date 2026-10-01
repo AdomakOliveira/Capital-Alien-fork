@@ -516,7 +516,7 @@ void eventSelector(Game& game, House& house, Player& player, uint8_t dice) {
 }
 
 void RefreshScreen(Game& game){
-    if(!BotaoAcao(Rectangle{20, 60, 30, 30}, "REFRESH")){
+    if(!BotaoAcao(Rectangle{20, 60, 20, 20}, "X")){
         return;
     }
 

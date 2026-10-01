@@ -61,30 +61,26 @@ void UpdatePre() {
     if(IsInMenu()){
         switch (GetKeyPressed()) {
             case KEY_ONE:
-                clientIndex = 0;
+            clientIndex = 0;
             break;
             
             case KEY_TWO:
-                clientIndex = 1;
+            clientIndex = 1;
             break;
-
+            
             case KEY_THREE:
-                clientIndex = 2;
+            clientIndex = 2;
             break;
-
+            
             case KEY_FOUR:
-                clientIndex = 3;
+            clientIndex = 3;
             break;
         }
     }
-    try{
-        if(!IsInMenu() && pressedButton){
-            SendFile(mainGame, PATH);
-            RetrieveFile(mainGame, PATH);
-        }
-    } catch (int e){
-        cout << "ERROR: " << e << endl;
+    if(pressedButton){
+        SendFile(mainGame, PATH);
     }
+    RetrieveFile(mainGame, PATH);
 }
 
 void Update(){
@@ -108,11 +104,7 @@ void Render2D(){
     RenderName(mainGame);
     RenderRound(mainGame);
     RenderMoney(mainGame);
-    try{
-        pressedButton = RenderButtons(mainGame, clientIndex);
-    } catch(int e){
-        cout << "Error: " << e << " when pressing button" << endl;
-    }
+    pressedButton = RenderButtons(mainGame, clientIndex);
 
     if(gameOver){
         string texto = "Fim de jogo! Vencedor: " + winnerName;

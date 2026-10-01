@@ -1,5 +1,6 @@
 #include "raylib.h"
 
+#include <iostream>
 #include "game_logic.hpp"
 #include "constants.hpp"
 
@@ -22,20 +23,20 @@ int main()
     while (!WindowShouldClose()){
         UpdatePre();
         Update();
-        UpdatePost();
-
+        
         ClearBackground(RAYWHITE);
         
         BeginMode3D(camera);
         Render3D();
         EndMode3D();
-
+        
         BeginDrawing();
         Render2D();
         EndDrawing();
         
+        UpdatePost();
         Debug();
-        _sleep(10);
+        WaitTime(0.01);
         std::system("cls");
     }
     CloseWindow();
