@@ -4,10 +4,37 @@
 #include <iostream>
 #include "utilities.hpp"
 
+#define is_empty(file) file.peek() == EOF
+
 using namespace std;
 
+void ReadConfig(Config& config){
+    ifstream file("src\\Data\\config.txt");
+    cout << "Opening config" << endl;
+    if(!file.is_open()) return;
+    
+    getline(file, config.PATH);
+    cout << "Reading PATH -> " << config.PATH << endl;
+    
+    file >> config.playerQnt;
+    file.get();
+    cout << "Reading player quantity -> " << config.playerQnt << endl;
+
+    string buffer;
+    for(int i = 0; i < config.playerQnt; i++){
+        getline(file, buffer);
+        config.playerNames[i] = buffer + "\0";
+        cout << "Reading player name(" << i << ") -> " << config.playerNames[i] << endl;
+    }
+    
+    cout << "Closing config" << endl;
+    file.close();
+    WaitTime(0.2);
+}
+
 void ClearFile(const string& filepath){
-    ofstream clear((filepath + "\\data.dat").c_str());
+    ofstream clear((filepath + "\\data.dat").c_str(), ios::trunc);
+    cout << "Clearing data" << endl;
     clear.close();
 }
 
@@ -100,7 +127,7 @@ void SendFile(const Game& game, const string& filepath){
 
 void RetrieveFile(Game& game, const string& filepath){
     ifstream file((filepath + "\\data.dat").c_str(), ios::binary );
-    if(!file.is_open() || file.fail()){
+    if(!file.is_open() || file.fail() || is_empty(file)){
         cout << "Error..." << endl;
         return;
     }

@@ -472,11 +472,3 @@ void eventSelector(Game& game, House& house, Player& player, uint8_t dice) {
         break;
     }
 }
-
-void RefreshScreen(Game& game){
-    if(!BotaoAcao(Rectangle{20, 60, 20, 20}, "X")){
-        return;
-    }
-
-    RetrieveFile(game, PATH);
-}

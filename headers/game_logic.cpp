@@ -10,7 +10,7 @@
 #include "filehandler.hpp"
 
 Game mainGame;
-int clientIndex = 0;
+Config mainConfig;
 
 bool rolledThisTurn = false;
 bool gameOver = false;
@@ -50,39 +50,24 @@ string MoveAndTriggerEvent(Player& player, int dado1, int dado2, int total, cons
 
 void Init(){
     SetRandomSeed((unsigned int)time(NULL));
+    
+    ReadConfig(mainConfig);
 
-    Init(mainGame, array_size(BOARD_DATA), 2);
+    Init(mainGame, mainConfig);
 
-    GetPlayer(mainGame, 0) = Constructor(0, "Zandiano", RED, INITMONEY);
-    GetPlayer(mainGame, 1) = Constructor(1, "Kryll", BLUE, INITMONEY);
-
-    ClearFile(PATH);
+    ClearFile(mainConfig.PATH);
 }
 
 void UpdatePre() {
     if(IsInMenu()){
-        switch (GetKeyPressed()) {
-            case KEY_ONE:
-            clientIndex = 0;
-            break;
-            
-            case KEY_TWO:
-            clientIndex = 1;
-            break;
-            
-            case KEY_THREE:
-            clientIndex = 2;
-            break;
-            
-            case KEY_FOUR:
-            clientIndex = 3;
-            break;
-        }
+        int num = GetKeyPressed();
+        if(num >= KEY_ONE && num <= KEY_FIVE)
+            mainConfig.clientIndex = num - KEY_ONE; 
     }
     if(pressedButton){
-        SendFile(mainGame, PATH);
+        SendFile(mainGame, mainConfig.PATH);
     }
-    RetrieveFile(mainGame, PATH);
+    RetrieveFile(mainGame, mainConfig.PATH);
 }
 
 void Update(){
@@ -98,16 +83,15 @@ void Render3D(){
 
 void Render2D(){
     if(IsInMenu()){
-        RenderMenu(mainGame, clientIndex);
+        RenderMenu(mainGame, mainConfig.clientIndex, mainConfig.PATH);
         return;
     }
-
-    RenderName(mainGame);
     RenderRound(mainGame);
+    RenderName(mainGame);
+    TurnAlert(mainGame, mainConfig.clientIndex);
     RenderMoney(mainGame);
-    pressedButton = RenderButtons(mainGame, clientIndex);
+    pressedButton = RenderButtons(mainGame, mainConfig.clientIndex);
     RenderHouseInfo(mainGame);
-
     if(gameOver){
         string texto = "Fim de jogo! Vencedor: " + winnerName;
         DrawText(texto.c_str(), 20, ScreenH / 2, 24, GOLD);
@@ -117,10 +101,13 @@ void Render2D(){
 void Debug(){
     std::cout << "Player: " << GetName(GetPlayer(mainGame)) << std::endl;
     std::cout << "House num: " << to_string(GetPos(GetPlayer(mainGame))) << std::endl;
-    std::cout << "Client Index: " << clientIndex << std::endl;
+    std::cout << "Client Index: " << mainConfig.clientIndex << std::endl;
 }
 
 string ActionRollDice(){
+    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+        return "Jogue no seu turno!";
+    }
     if(gameOver){
         return "O jogo ja acabou! Vencedor: " + winnerName;
     }
@@ -165,6 +152,9 @@ string ActionRollDice(){
 }
 
 string ActionBuy(){
+    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+        return "Jogue no seu turno!";
+    }
     if(mainGame.eventDecision.action != BUY){
         return "Nao ha nada para comprar nesta casa.";
     }
@@ -182,6 +172,9 @@ string ActionBuy(){
 }
 
 string ActionBuild(){
+    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+        return "Jogue no seu turno!";
+    }
     Player& player = GetPlayer(mainGame);
     House& house = GetHouse(mainGame, GetPos(player));
 
@@ -194,6 +187,9 @@ string ActionBuild(){
 }
 
 string ActionMortgage(){
+    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+        return "Jogue no seu turno!";
+    }
     Player& player = GetPlayer(mainGame);
     House& house = GetHouse(mainGame, GetPos(player));
 
@@ -205,12 +201,22 @@ string ActionMortgage(){
 }
 
 string ActionNegotiate(){
+    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+        return "Jogue no seu turno!";
+    }
     return "Negociacao entre jogadores ainda nao implementada.";
 }
 
 string ActionEndTurn(){
+    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+        return "Jogue no seu turno!";
+    }
     if(gameOver){
         return "O jogo ja acabou! Vencedor: " + winnerName;
+    }
+
+    if(!rolledThisTurn){
+        return "Role os dados!";
     }
 
     string finishedName = GetName(GetPlayer(mainGame));

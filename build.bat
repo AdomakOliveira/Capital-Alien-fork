@@ -12,4 +12,6 @@ build\Debug\CapitalAlien.exe
 
 echo.
 
+echo Codigo de saida: %errorlevel%
+
 echo Build concluido!

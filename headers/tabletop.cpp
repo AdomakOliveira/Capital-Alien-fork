@@ -8,21 +8,21 @@
 
 void generateCards(Card cards_arr[], int FLAG);
 
-void Init(Game& game, int qntHouse, int qntPlayers){
-    game.qntHouse = qntHouse;
-    game.qntPlayers = qntPlayers;
+void Init(Game& game, const Config& config){
+    game.qntHouse = MAXHOUSES;
+    game.qntPlayers = config.playerQnt;
 
     generateCards(game.chanceCards, 0);
     generateCards(game.chestCards, 1);
 
-    for(int i = 0; i < qntHouse; i++){
+    for(int i = 0; i < MAXHOUSES; i++){
         game.houses[i] = BOARD_DATA[i];
     }
 
-    Color defaultColors[4] = {RED, BLUE, GREEN, ORANGE};
+    Color defaultColors[MAXPLAYERS] = {RED, BLUE, GREEN, ORANGE, BROWN};
 
-    for(int i = 0; i < qntPlayers; i++){
-        game.players[i] = Constructor(i, "Jogador " + to_string(i + 1), defaultColors[i % 4], INITMONEY);
+    for(int i = 0; i < game.qntPlayers; i++){
+        game.players[i] = Constructor(i, config.playerNames[i], defaultColors[i % MAXPLAYERS], INITMONEY);
     }
 }
 
@@ -60,7 +60,10 @@ bool InitPlayer(Game& game, Player newPlayer){
 }
 
 uint8_t NextPlayer(Game& game){
-    ++game.playerIndex %= GetPlayerQnt(game);
+    do{
+        ++game.playerIndex %= GetPlayerQnt(game);
+    }
+    while(GetPlayer(game).bankrupt);
     return game.playerIndex;
 }
 

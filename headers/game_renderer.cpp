@@ -4,6 +4,10 @@
 #include "house.hpp"
 #include "tabletop.hpp"
 #include "constants.hpp"
+#include "filehandler.hpp"
+#include <iostream>
+
+using namespace std;
 
 void RenderHouse(Game game){
     DrawCube({0,0,1}, 1.2f, 0.5, 2, GetHouseColor(GetHouse(game, GetPos(GetPlayer(game)))));
@@ -13,20 +17,34 @@ void RenderName(Game game){
     DrawText(GetName(GetPlayer(game)).c_str(), 20, 20, 28, GetPlayerColor(GetPlayer(game)));
 }
 
+void TurnAlert(Game game, int clientIndex){
+    if(GetID(GetPlayer(game)) == clientIndex){
+        DrawText("!!!", ScreenW/2, 20, 28, RED);
+    }
+}
+
 void RenderHouseInfo(Game game){
     int initY = 80;
     int spacing = 16;
-
-    House& currentHouse = GetHouse(game, GetPos(GetPlayer(game)));
+    
+    Player& currentPlayer = GetPlayer(game);
+    House& currentHouse = GetHouse(game, GetPos(currentPlayer));
     Color grey = {180, 180, 180, 255};
     DrawRectangle(20, initY, 200, 100, grey);
+    
     DrawText(("NOME- " + GetName(currentHouse)).c_str(), 22, initY + spacing, 14, LIGHTGRAY);
+    
     DrawText(("PRECO- " + to_string(GetPrice(currentHouse)) + "(" + to_string(GetResidencePrice(currentHouse)) + ")").c_str(), 22, initY + spacing * 2, 14, LIGHTGRAY);
+    
     DrawText(("ALUGUEL- " + to_string(GetValue(game, currentHouse))).c_str(), 22, initY + spacing * 3, 14, LIGHTGRAY);
-    string ownerName = GetName(GetPlayer(game));
-    if(GetOwner(currentHouse) == -1){ ownerName = "NONE"; }
+    
+    string ownerName = "";
+    if(GetOwner(currentHouse) == -1) { ownerName = "NONE"; }
+    else { ownerName = GetName(GetPlayer(game, GetOwner(currentHouse))); }
     DrawText(("DONO- " + ownerName).c_str(), 22, initY + spacing * 4, 14, LIGHTGRAY);
+    
     DrawText(("HOUSES- " + GetHouseQnt(currentHouse)), 22, initY + spacing * 5, 14, LIGHTGRAY);
+    
 }
 
 void RenderRound(Game game){
@@ -50,7 +68,7 @@ bool IsInMenu(){
     return emMenu;
 }
 
-void RenderMenu(Game& game, int clientIndex){
+void RenderMenu(Game& game, int clientIndex, string& PATH){
     ClearBackground(BLACK);
     DrawRectangleLines(15, 15, ScreenW - 30, ScreenH - 30, DARKGREEN);
 
@@ -112,7 +130,7 @@ void RenderMenu(Game& game, int clientIndex){
     DrawText("Use as SETAS e ENTER, ou o MOUSE para escolher", (ScreenW - larguraDica) / 2, 385, 16, LIGHTGRAY);
     
     bool clicou = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
-    if (IsKeyPressed(KEY_ENTER) || clicou){
+    if (IsKeyPressed(KEY_ENTER) || (clicou && (mouseEmJogar || mouseEmSair))){
         if (opcaoMenu == 0){
             emMenu = false;
         } else if (opcaoMenu == 1){
@@ -155,32 +173,32 @@ bool RenderButtons(Game& game, int clientIndex){
     int xInicial = 18;
     int yLinha = ScreenH - 55;
 
-    if (BotaoAcao({(float)(xInicial + 0 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "JOGAR DADO") && clientIndex == GetID(GetPlayer(game))){
+    if (BotaoAcao({(float)(xInicial + 0 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "JOGAR DADO")){
         mensagemFeedback = ActionRollDice();
         tempoFeedback = 3.0f;
     }
 
-    if (BotaoAcao({(float)(xInicial + 1 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "COMPRAR") && clientIndex == GetID(GetPlayer(game))){
+    if (BotaoAcao({(float)(xInicial + 1 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "COMPRAR")){
         mensagemFeedback = ActionBuy();
         tempoFeedback = 3.0f;
     }
 
-    if (BotaoAcao({(float)(xInicial + 2 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "CONSTRUIR") && clientIndex == GetID(GetPlayer(game))){
+    if (BotaoAcao({(float)(xInicial + 2 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "CONSTRUIR")){
         mensagemFeedback = ActionBuild();
         tempoFeedback = 3.0f;
     }
 
-    if (BotaoAcao({(float)(xInicial + 3 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "HIPOTECAR") && clientIndex == GetID(GetPlayer(game))){
+    if (BotaoAcao({(float)(xInicial + 3 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "HIPOTECAR")){
         mensagemFeedback = ActionMortgage();
         tempoFeedback = 3.0f;
     }
 
-    if (BotaoAcao({(float)(xInicial + 4 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "NEGOCIAR") && clientIndex == GetID(GetPlayer(game))){
+    if (BotaoAcao({(float)(xInicial + 4 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "NEGOCIAR")){
         mensagemFeedback = ActionNegotiate();
         tempoFeedback = 3.0f;
     }
 
-    if (BotaoAcao({(float)(xInicial + 5 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "PASSAR VEZ") && clientIndex == GetID(GetPlayer(game))){
+    if (BotaoAcao({(float)(xInicial + 5 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "PASSAR VEZ")){
         mensagemFeedback = ActionEndTurn();
         tempoFeedback = 3.0f;
     }
@@ -198,7 +216,7 @@ bool RenderButtons(Game& game, int clientIndex){
         
         int larguraMsg = MeasureText(mensagemFeedback.c_str(), 16);
         DrawText(mensagemFeedback.c_str(), caixaX + (caixaLargura - larguraMsg) / 2, caixaY + 8, 16, YELLOW);
-        return tempoFeedback >= 2.8f;
+        return tempoFeedback >= 2.8;
     }
     return false;
 }

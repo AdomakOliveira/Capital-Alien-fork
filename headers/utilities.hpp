@@ -5,7 +5,7 @@
 #define array_size(arr) int(sizeof((arr))/sizeof((arr)[0]))
 
 #define MAXHOUSES 40
-#define MAXPLAYERS 4
+#define MAXPLAYERS 5
 #define QNTCARDS 16
 
 typedef enum{

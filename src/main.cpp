@@ -7,10 +7,12 @@
 
 int main()
 {
+    cout << "Main" << endl;
     InitWindow(ScreenW, ScreenH, "Capital Alien");
 
     SetTargetFPS(60);
 
+    cout << "Initializing camera" << endl;
     Camera3D camera = {
         {0,1,0}, 
         {0,0,2}, 
@@ -18,8 +20,9 @@ int main()
         60, 
         CAMERA_PERSPECTIVE
     };
-    
+    cout << "Initializing Game" << endl;
     Init();
+    cout << "Initialized Game" << endl;
     while (!WindowShouldClose()){
         UpdatePre();
         Update();
@@ -37,7 +40,7 @@ int main()
         UpdatePost();
         Debug();
         WaitTime(0.01);
-        std::system("cls");
+        system("cls");
     }
     CloseWindow();
 

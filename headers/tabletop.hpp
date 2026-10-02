@@ -2,7 +2,7 @@
 
 #include "structs.hpp"
 
-void Init(Game& game, int qntHouse, int qntPlayers);
+void Init(Game& game, const Config& config);
 
 Player& GetPlayer(Game& game);
 

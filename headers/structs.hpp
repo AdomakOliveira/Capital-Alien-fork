@@ -7,6 +7,13 @@
 
 using namespace std;
 
+struct Config{
+    int clientIndex = 0;
+    int playerQnt = 0;
+    string PATH = "";
+    string playerNames[4];
+};
+
 struct House{
     string name = "";           // Nome
     Color color;                // Cor
