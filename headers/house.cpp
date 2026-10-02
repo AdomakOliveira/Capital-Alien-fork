@@ -10,6 +10,68 @@ House Constructor(const string& name, Color color, uint8_t value, uint8_t price,
     return House{name, color, (uint8_t)type, value, price};
 }
 
+string GetName(const House& house){
+    return house.name;
+}
+
+uint8_t GetPrice(const House& house){
+    return house.price;
+}
+
+uint8_t GetResidencePrice(const House& house){
+    return house.residencePrice;
+}
+
+uint8_t GetHouseQnt(const House& house){
+    return house.housesBuilt;
+}
+
+uint8_t GetValue(const Game& game, const House& house){
+        uint32_t value = 0;
+    if(house.type == NORMAL) {
+        switch(house.housesBuilt) {
+        case 0:
+            value = house.value;
+            break;
+        case 1:
+            value = house.value * 5;
+            break;
+        case 2:
+            value = house.value * 15;
+            break;
+        case 3:
+            value = house.value * 40;
+            break;
+        case 4:
+            value = house.value * 60;
+            break;
+        case 5:
+            value = house.value * 80;
+            break;
+        }
+    } else if(house.type == RAILROAD) {
+        uint8_t count = 0;
+        for(int i = 5; i < 36; i += 10) {
+            if(game.houses[i].owner == house.owner) count++;
+        }
+        switch(count) {
+        case 1:
+            value = 25;
+            break;
+        case 2:
+            value = 50;
+            break;
+        case 3:
+            value = 100;
+            break;
+        case 4:
+            value = 200;
+            break;
+        }
+    }
+    return value;
+}
+
 bool SetOwner(House& house, int8_t newOwner){
     int8_t lastOwner = house.owner;
     if(house.type == NORMAL || house.type == RAILROAD || house.type == COMPANY){

@@ -55,6 +55,8 @@ void Init(){
 
     GetPlayer(mainGame, 0) = Constructor(0, "Zandiano", RED, INITMONEY);
     GetPlayer(mainGame, 1) = Constructor(1, "Kryll", BLUE, INITMONEY);
+
+    ClearFile(PATH);
 }
 
 void UpdatePre() {
@@ -84,7 +86,6 @@ void UpdatePre() {
 }
 
 void Update(){
-    RefreshScreen(mainGame);
 }
 
 void UpdatePost(){
@@ -105,6 +106,7 @@ void Render2D(){
     RenderRound(mainGame);
     RenderMoney(mainGame);
     pressedButton = RenderButtons(mainGame, clientIndex);
+    RenderHouseInfo(mainGame);
 
     if(gameOver){
         string texto = "Fim de jogo! Vencedor: " + winnerName;

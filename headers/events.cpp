@@ -394,50 +394,8 @@ void companyEvent(Game& game, Player& player, House& house, uint8_t dice) {
     }
 }
 
-uint32_t rentValue(Game& game, Player& player, House& house) {
-    uint32_t value = 0;
-    if(house.type == NORMAL) {
-        switch(house.housesBuilt) {
-        case 0:
-            value = house.value;
-            break;
-        case 1:
-            value = house.value * 5;
-            break;
-        case 2:
-            value = house.value * 15;
-            break;
-        case 3:
-            value = house.value * 40;
-            break;
-        case 4:
-            value = house.value * 60;
-            break;
-        case 5:
-            value = house.value * 80;
-            break;
-        }
-    } else if(house.type == RAILROAD) {
-        uint8_t count = 0;
-        for(int i = 5; i < 36; i += 10) {
-            if(game.houses[i].owner == player.ID) count++;
-        }
-        switch(count) {
-        case 1:
-            value = 25;
-            break;
-        case 2:
-            value = 50;
-            break;
-        case 3:
-            value = 100;
-            break;
-        case 4:
-            value = 200;
-            break;
-        }
-    }
-    return value;
+uint32_t rentValue(Game& game, House& house) {
+    return GetValue(game, house);
 }
 
 void normalHouseEvent(Game& game, Player& player, House& house) {
@@ -451,7 +409,7 @@ void normalHouseEvent(Game& game, Player& player, House& house) {
         return;
     }
 
-    uint32_t rent = rentValue(game, player, house);
+    uint32_t rent = rentValue(game, house);
     PAYMENT_STATUS status = VerifyMoney(game, player, rent);
     if(status == CAN_PAY) {
         TransferMoney(player, game.players[house.owner], rent);
@@ -473,7 +431,7 @@ void railRoadEvent(Game& game, Player& player, House& house) {
         return;
     }
 
-    uint32_t rent = rentValue(game, player, house);
+    uint32_t rent = rentValue(game, house);
     PAYMENT_STATUS status = VerifyMoney(game, player, rent);
     if(status == CAN_PAY) {
         TransferMoney(player, game.players[house.owner], rent);

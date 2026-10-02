@@ -20,3 +20,13 @@ bool Buy(House& house, Player& player);
 uint16_t PayRent(Game& game, const House& house, Player& payer);
 
 bool BuildHouse(Game& game, House& house, Player& player);
+
+string GetName(const House& house);
+
+uint8_t GetPrice(const House& house);
+
+uint8_t GetValue(const Game& game, const House& house);
+
+uint8_t GetResidencePrice(const House& house);
+
+uint8_t GetHouseQnt(const House& house);

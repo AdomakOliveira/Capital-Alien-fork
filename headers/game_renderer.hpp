@@ -16,4 +16,6 @@ bool BotaoAcao(Rectangle area, const char* texto);
 
 bool RenderButtons(Game& game, int clientIndex);
 
+void RenderHouseInfo(Game game);
+
 bool IsInMenu();

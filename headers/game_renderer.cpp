@@ -13,6 +13,22 @@ void RenderName(Game game){
     DrawText(GetName(GetPlayer(game)).c_str(), 20, 20, 28, GetPlayerColor(GetPlayer(game)));
 }
 
+void RenderHouseInfo(Game game){
+    int initY = 80;
+    int spacing = 16;
+
+    House& currentHouse = GetHouse(game, GetPos(GetPlayer(game)));
+    Color grey = {180, 180, 180, 255};
+    DrawRectangle(20, initY, 200, 100, grey);
+    DrawText(("NOME- " + GetName(currentHouse)).c_str(), 22, initY + spacing, 14, LIGHTGRAY);
+    DrawText(("PRECO- " + to_string(GetPrice(currentHouse)) + "(" + to_string(GetResidencePrice(currentHouse)) + ")").c_str(), 22, initY + spacing * 2, 14, LIGHTGRAY);
+    DrawText(("ALUGUEL- " + to_string(GetValue(game, currentHouse))).c_str(), 22, initY + spacing * 3, 14, LIGHTGRAY);
+    string ownerName = GetName(GetPlayer(game));
+    if(GetOwner(currentHouse) == -1){ ownerName = "NONE"; }
+    DrawText(("DONO- " + ownerName).c_str(), 22, initY + spacing * 4, 14, LIGHTGRAY);
+    DrawText(("HOUSES- " + GetHouseQnt(currentHouse)), 22, initY + spacing * 5, 14, LIGHTGRAY);
+}
+
 void RenderRound(Game game){
     string rodada = "Rodada: " + to_string(GetRound(game));
     DrawText(rodada.c_str(), ScreenW - 190, 15, 24, RED);

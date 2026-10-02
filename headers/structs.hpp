@@ -23,7 +23,7 @@ struct House{
 struct Card {
     string desc = "";    // Descrição da Carta
     bool good;           // Carta Positiva ou negativa?
-    CARD_ACTION action;  // Tipo de ação
+    uint8_t action;  // Tipo de ação
     uint8_t value = 0;   // Valor ($) da ação
     int8_t target = -1;  // Destino
     int8_t passBy = -1; 
@@ -44,7 +44,7 @@ struct Player{
 };
 
 struct EventDecision {
-    EVENT_ACTION action = NONE;
+    uint8_t action = NONE;
     int8_t houseId = -1;
 };
 
