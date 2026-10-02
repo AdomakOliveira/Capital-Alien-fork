@@ -5,6 +5,7 @@
 #include "constants.hpp"
 #include "house.hpp"
 #include "player.hpp"
+#include "tabletop.hpp"
 #include "game_renderer.hpp"
 #include "filehandler.hpp"
 
@@ -44,7 +45,7 @@ void ResolvePayment(Game& game) {
 
     if(!decision.active) return;
 
-    Player& player = game.players[decision.playerId];
+    Player& player = GetPlayer(game, decision.playerId);
 
     if(decision.payEachPlayer) {
         uint32_t total = decision.amountOwed * (game.qntPlayers - 1);
@@ -58,10 +59,7 @@ void ResolvePayment(Game& game) {
     } else {
         if(player.money >= decision.amountOwed) {
             if(decision.receiverId == -1) {
-                RemoveMoney(
-                    player,
-                    decision.amountOwed
-                );
+                RemoveMoney(player, decision.amountOwed);
             } else {
                 TransferMoney(player, game.players[decision.receiverId], decision.amountOwed);
             }
@@ -70,23 +68,6 @@ void ResolvePayment(Game& game) {
     }
 }
 
-/* Hipoteca um imóvel em posse do jogador selecionado */
-bool MortgageProperty(Game& game, Player& player, House& house) {
-    if(house.owner != player.ID)
-        return false;
-    if(house.mortgaged)
-        return false;
-    if(house.housesBuilt != 0)
-        return false;
-
-    AddMoney(player, house.mortgagePrice);
-    house.mortgaged = true;
-    ResolvePayment(game);
-
-    return true;
-}
-
-/* Vende Casas/Hotéis dentro de um imóvel em posse do jogador selecionado */
 bool SellHousesOrHotels(Game& game, Player& player, House& house, uint8_t qnt) {
     if(!house.housesBuilt || house.owner != player.ID || house.housesBuilt < qnt) {
         return false;
@@ -97,23 +78,19 @@ bool SellHousesOrHotels(Game& game, Player& player, House& house, uint8_t qnt) {
     return true;
 }
 
-void goesBankrupt(Player& player) {
-    player.bankrupt = true;
-}
-
-void activateLiquidation(Game& game, Player& player, int8_t id, uint32_t value, bool FLAG) {
+void Liquidate(Game& game, Player& from, uint8_t destID, uint32_t value, bool FLAG) {
     game.liquidation.active = true;
-    game.liquidation.playerId = player.ID;
-    game.liquidation.receiverId = id;
+    game.liquidation.playerId = GetID(from);
+    game.liquidation.receiverId = destID;
     game.liquidation.amountOwed = value;
     game.liquidation.payEachPlayer = FLAG;
 }
 
-void startEvent(Player& player) {
+void StartEvent(Player& player) {
     AddMoney(player, 200);
 }
 
-void getChestCard(Game& game, Player& player) {
+void GetChestCard(Game& game, Player& player) {
     Card card = game.chestCards[0];
     for(int i = 1; i < QNTCARDS; i++) {
         game.chestCards[i - 1] = game.chestCards[i];
@@ -132,9 +109,9 @@ void getChestCard(Game& game, Player& player) {
         if(status == CAN_PAY) {
             RemoveMoney(player, card.value);
         } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, card.value, false);
+            Liquidate(game, player, -1, card.value, false);
         } else {
-            goesBankrupt(player);
+            Bankrupt(player);
         }
         break;
     }
@@ -146,9 +123,9 @@ void getChestCard(Game& game, Player& player) {
             if(status == CAN_PAY) {
                 TransferMoney(game.players[i], player, card.value);
             } else if(status == NEED_LIQUIDATION) {
-                activateLiquidation(game, game.players[i], player.ID, card.value, false);
+                Liquidate(game, game.players[i], player.ID, card.value, false);
             } else {
-                goesBankrupt(game.players[i]);
+                Bankrupt(game.players[i]);
             }
         }
         break;
@@ -168,16 +145,16 @@ void getChestCard(Game& game, Player& player) {
         if(status == CAN_PAY) {
             RemoveMoney(player, value);
         } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, value, false);
+            Liquidate(game, player, -1, value, false);
         } else {
-            goesBankrupt(player);
+            Bankrupt(player);
         }
         break;
     }
     }
 }
 
-void getChanceCard(Game& game, Player& player) {
+void GetChanceCard(Game& game, Player& player) {
     Card card = game.chanceCards[0];
     for(int i = 1; i < QNTCARDS; i++) {
         if(game.jailCardActive && i == QNTCARDS - 1) {
@@ -223,9 +200,9 @@ void getChanceCard(Game& game, Player& player) {
         if(status == CAN_PAY) {
             RemoveMoney(player, card.value);
         } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, card.value, false);
+            Liquidate(game, player, -1, card.value, false);
         } else {
-            goesBankrupt(player);
+            Bankrupt(player);
         }
         break;
     }
@@ -254,9 +231,9 @@ void getChanceCard(Game& game, Player& player) {
         if(status == CAN_PAY) {
             RemoveMoney(player, value);
         } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, value, false);
+            Liquidate(game, player, -1, value, false);
         } else {
-            goesBankrupt(player);
+            Bankrupt(player);
         }
         break;
     }
@@ -276,199 +253,177 @@ void getChanceCard(Game& game, Player& player) {
                 TransferMoney(player, game.players[i], card.value);
             }
         } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, value, true);
+            Liquidate(game, player, -1, value, true);
         } else {
-            goesBankrupt(player);
+            Bankrupt(player);
         }
         break;
     }
     }
 }
 
-void taxesEvent(Game& game, Player& player) {
-    if(player.houseIndex == 4) {
-        PAYMENT_STATUS status = VerifyMoney(game, player, 200);
-        if(status == CAN_PAY) {
-            RemoveMoney(player, 200);
-        } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, 200, false);
-        } else {
-            uint32_t total = GetLiquidationValue(game, player);
-            if(total > 0) {
-                status = VerifyMoney(game, player, 0.1 * total);
-                if(status == CAN_PAY) {
-                    RemoveMoney(player, 0.1 * total);
-                } else if(status == NEED_LIQUIDATION) {
-                    activateLiquidation(game, player, -1, 0.1 * total, false);
-                }
-            } else {
-                goesBankrupt(player);
-            }
-        }
-    } else {
+void TaxesEvent(Game& game, Player& player) {
+    if(GetPos(player) != 4) {
         PAYMENT_STATUS status = VerifyMoney(game, player, 75);
-        if(status == CAN_PAY) {
-            RemoveMoney(player, 75);
-        } else if(status == NEED_LIQUIDATION) {
-            activateLiquidation(game, player, -1, 75, false);
-        } else {
-            goesBankrupt(player);
+        
+        switch(status){
+            case CAN_PAY:
+                RemoveMoney(player, 75);
+            break;
+
+            case NEED_LIQUIDATION:
+                Liquidate(game, player, -1, 75, false);
+            break;
+
+            default:
+                Bankrupt(player);
+            break;
         }
+        return;
+    }
+
+    PAYMENT_STATUS status = VerifyMoney(game, player, 200);
+    
+    switch(status){
+        case CAN_PAY:
+            RemoveMoney(player, 200);
+        break;
+
+        case NEED_LIQUIDATION:
+            Liquidate(game, player, -1, 200, false);
+        break;
+
+        default:
+            uint32_t total = GetLiquidationValue(game, player);
+
+            if(total <= 0) {
+                Bankrupt(player);
+                break;
+            }
+
+            status = VerifyMoney(game, player, 0.1 * total);
+            if(status == CAN_PAY) {
+                RemoveMoney(player, 0.1 * total);
+            } else if(status == NEED_LIQUIDATION) {
+                Liquidate(game, player, -1, 0.1 * total, false);
+            }
+        break;
     }
 }
 
-void PrisionTPEvent(Player& player) {
+void PrisionEvent(Player& player) {
     SetHouse(player, 10);
     player.arrested = true;
 }
 
 uint8_t GetPropCount(Game& game, Player& player, House& house) {
     int count = 0;
-    if(house.type == COMPANY) {
-        if(game.houses[12].owner == player.ID) count++;
-        if(game.houses[28].owner == player.ID) count++;
-        return count;
-    }
-    if(house.type == RAILROAD) {
-        for(int i = 1; i < game.qntHouse; i++) {
-            if(game.houses[i].type == RAILROAD && game.houses[i].owner == player.ID) count++;  
-        }
-        return count;
-    }
-    if(house.type == NORMAL) {
-        for(int i = 1; i < game.qntHouse; i++) {
-            House& current = game.houses[i];
-            if(current.type == NORMAL 
-                && ColorToInt(current.color) == ColorToInt(house.color) 
-                && current.owner == player.ID) { count++; }
-        }
-        return count;
+    switch(house.type){
+        case NORMAL:
+            for(int i = 1; i < game.qntHouse; i++) {
+                House& current = game.houses[i];
+                if(current.type == NORMAL 
+                    && ColorToInt(current.color) == ColorToInt(house.color) 
+                    && current.owner == player.ID) { count++; }
+            }
+            return count;
+        break;
+        
+        case COMPANY:
+            if(game.houses[12].owner == player.ID) count++;
+            if(game.houses[28].owner == player.ID) count++;
+            return count;
+        break;
+
+        case RAILROAD:
+            for(int i = 1; i < game.qntHouse; i++) {
+                if(game.houses[i].type == RAILROAD && game.houses[i].owner == player.ID) count++;  
+            }
+            return count;
+        break;
     }
     return 0;
 }
 
-// Inicia um leilão para a casa em que o jogador parou (usado quando um
-// jogador decide não comprar a propriedade)
-void auctionEvent(Game& game, Player& player, House& house) {
-    game.eventDecision.action = EVENT_ACTION::AUCTION;
-    game.eventDecision.houseId = player.houseIndex;
-    game.auction.active = true;
-    game.auction.houseId = player.houseIndex;
-    game.auction.currentBid = 0;
-    game.auction.highestBidder = -1;
-    for(int i = 0; i < game.qntPlayers; i++) {
-        if(!game.players[i].bankrupt) {
-            game.auction.currentPlayer = i;
+void CompanyEvent(Game& game, Player& player, House& house, uint8_t dice) {
+    if(GetOwner(house) == GetID(player)) return;
+    
+    if(GetOwner(house) != -1) {
+        Player& owner = GetPlayer(game, GetOwner(house));
+        int mod = (GetPropCount(game, owner, house) == 2) ? 10 : 4;
+        PAYMENT_STATUS status = VerifyMoney(game, player, mod * dice);
+        
+        switch(status){
+            case CAN_PAY:
+                TransferMoney(player, owner, mod * dice); 
             break;
-        }
-    }
-}
 
-void companyEvent(Game& game, Player& player, House& house, uint8_t dice) {
-    if(house.owner == player.ID) {
-        return;
-    }
-    if(house.owner != -1) {
-        if(GetPropCount(game, game.players[house.owner], house) == 2) {
-            PAYMENT_STATUS status = VerifyMoney(game, player, 10 * dice);
-            if(status == CAN_PAY) {
-               TransferMoney(player, game.players[house.owner], 10 * dice); 
-            } else if(status == NEED_LIQUIDATION) {
-                activateLiquidation(game, player, house.owner, 10 * dice, false);
-            } else {
-                goesBankrupt(player);
-            }
-        } else {
-            PAYMENT_STATUS status = VerifyMoney(game, player, 4 * dice);
-            if(status == CAN_PAY) {
-               TransferMoney(player, game.players[house.owner], 4 * dice); 
-            } else if(status == NEED_LIQUIDATION) {
-                activateLiquidation(game, player, house.owner, 4 * dice, false);
-            } else {
-                goesBankrupt(player);
-            }
+            case NEED_LIQUIDATION:
+                Liquidate(game, player, GetID(owner), mod * dice, false);
+            break;
+
+            default:
+                Bankrupt(player);
         }
     } else {
         game.eventDecision.action = BUY;
-        game.eventDecision.houseId = player.houseIndex;
+        game.eventDecision.houseId = GetPos(player);
     }
 }
 
-uint32_t rentValue(Game& game, House& house) {
-    return GetValue(game, house);
-}
-
-void normalHouseEvent(Game& game, Player& player, House& house) {
-    if (house.owner == -1) {
+void HouseEvent(Game& game, Player& player, House& house) {
+    Player& owner = GetPlayer(game, GetOwner(house));
+    
+    if (GetID(owner) == -1) {
         game.eventDecision.action = EVENT_ACTION::BUY;
         game.eventDecision.houseId = player.houseIndex;
         return;
     }
 
-    if (house.owner == player.ID) {
-        return;
-    }
+    if (GetID(owner) == GetID(player)) return;
 
-    uint32_t rent = rentValue(game, house);
+    uint32_t rent = GetValue(game, house);
     PAYMENT_STATUS status = VerifyMoney(game, player, rent);
-    if(status == CAN_PAY) {
-        TransferMoney(player, game.players[house.owner], rent);
-    } else if(status == NEED_LIQUIDATION) {
-        activateLiquidation(game, player, house.owner, rent, false);
-    } else {
-        goesBankrupt(player);
+
+    switch(status){
+        case CAN_PAY:
+            TransferMoney(player, game.players[house.owner], rent);
+        break;
+
+        case NEED_LIQUIDATION:
+            Liquidate(game, player, GetID(owner), rent, false);
+        break;
+
+        default:
+            Bankrupt(player);
     }
 }
 
-void railRoadEvent(Game& game, Player& player, House& house) {
-    if (house.owner == -1) {
-        game.eventDecision.action = EVENT_ACTION::BUY;
-        game.eventDecision.houseId = player.houseIndex;
-        return;
-    }
-
-    if (house.owner == player.ID) {
-        return;
-    }
-
-    uint32_t rent = rentValue(game, house);
-    PAYMENT_STATUS status = VerifyMoney(game, player, rent);
-    if(status == CAN_PAY) {
-        TransferMoney(player, game.players[house.owner], rent);
-    } else if(status == NEED_LIQUIDATION) {
-        activateLiquidation(game, player, house.owner, rent, false);
-    } else {
-        goesBankrupt(player);
-    }
-}
-
-/* Seletor de eventos. Função que controla o evento disparado de acordo
-com a casa que o jogador acabou de se movimentar para*/
-void eventSelector(Game& game, House& house, Player& player, uint8_t dice) {
+void EventSelector(Game& game, House& house, Player& player, uint8_t dice) {
     switch(house.type) {
     case START:
-        startEvent(player);
+        StartEvent(player);
         break;
     case NORMAL:
-        normalHouseEvent(game, player, house);
+        HouseEvent(game, player, house);
         break;
     case RAILROAD:
-        railRoadEvent(game, player, house);
+        HouseEvent(game, player, house);
         break;
     case COMPANY:
-        companyEvent(game, player, house, dice);
+        CompanyEvent(game, player, house, dice);
         break;
     case CHEST:
-        getChestCard(game, player);
+        GetChestCard(game, player);
         break;
     case QUESTION_MARK:
-        getChanceCard(game, player);
+        GetChanceCard(game, player);
         break;
     case TAXES:
-        taxesEvent(game, player);
+        TaxesEvent(game, player);
         break;
     case TELEPORT:
-        PrisionTPEvent(player);
+        PrisionEvent(player);
         break;
     }
 }

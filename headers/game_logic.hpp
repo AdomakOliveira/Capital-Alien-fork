@@ -17,4 +17,3 @@ string ActionBuild();
 string ActionMortgage();
 string ActionNegotiate();
 string ActionEndTurn();
-

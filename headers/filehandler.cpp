@@ -113,13 +113,6 @@ void SendFile(const Game& game, const string& filepath){
     file.write((const char*)&game.eventDecision.action, sizeof(uint8_t));
     file.write((const char*)&game.eventDecision.houseId, sizeof(int8_t));
 
-    file.write((const char*)&game.auction.active, sizeof(bool));
-    file.write((const char*)&game.auction.houseId, sizeof(int8_t));
-    file.write((const char*)&game.auction.currentPlayer, sizeof(int8_t));
-    file.write((const char*)&game.auction.currentBid, sizeof(uint32_t));
-    file.write((const char*)&game.auction.highestBidder, sizeof(int8_t));
-
-
     file.close();
 
     cout << "Sent." << endl;
@@ -147,9 +140,7 @@ void RetrieveFile(Game& game, const string& filepath){
     }
     
     for(int i = 0; i < MAXPLAYERS; i++){
-        // int length = game.players[i].name.length();
         file.read((char*)&game.players[i].ID, sizeof(uint8_t));
-        // file.read(game.players[i].name.data(), length);
         file.read((char*)&game.players[i].money, sizeof(uint32_t));
         file.read((char*)&game.players[i].color, sizeof(Color));
         file.read((char*)&game.players[i].houseIndex, sizeof(uint8_t));
@@ -184,12 +175,6 @@ void RetrieveFile(Game& game, const string& filepath){
 
     file.read((char*)&game.eventDecision.action, sizeof(uint8_t));
     file.read((char*)&game.eventDecision.houseId, sizeof(int8_t));
-
-    file.read((char*)&game.auction.active, sizeof(bool));
-    file.read((char*)&game.auction.houseId, sizeof(int8_t));
-    file.read((char*)&game.auction.currentPlayer, sizeof(int8_t));
-    file.read((char*)&game.auction.currentBid, sizeof(uint32_t));
-    file.read((char*)&game.auction.highestBidder, sizeof(int8_t));
 
     file.close();
 

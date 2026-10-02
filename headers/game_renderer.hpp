@@ -12,12 +12,12 @@ void RenderRound(Game game);
 
 void RenderMoney(Game game);
 
-void RenderMenu(Game& game, int clientIndex, string& PATH);
+void RenderMenu(Game& game, Client& client, string& PATH);
 
 bool BotaoAcao(Rectangle area, const char* texto);
 
-bool RenderButtons(Game& game, int clientIndex);
+bool RenderButtons(Game& game, Client& client);
 
 void RenderHouseInfo(Game game);
 
-bool IsInMenu();
+bool IsInMenu(const Client& client);

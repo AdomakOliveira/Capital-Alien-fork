@@ -7,11 +7,31 @@
 
 using namespace std;
 
+struct Menu{
+    bool active = true;
+    int option = 0;
+};
+
+struct MsgFeedback{
+    string message = "";
+    float time = 0.0f;
+}; 
+
 struct Config{
-    int clientIndex = 0;
     int playerQnt = 0;
     string PATH = "";
-    string playerNames[4];
+    string playerNames[MAXPLAYERS];
+};
+
+struct Client{
+    Config config;
+    Menu menu;
+    MsgFeedback feedback;
+    bool pressedButton = false;
+    bool gameOver = false;
+    string winnerName = "";
+    bool rolledThisTurn = false;
+    int index = 0;
 };
 
 struct House{
@@ -55,14 +75,6 @@ struct EventDecision {
     int8_t houseId = -1;
 };
 
-struct Auction {
-    bool active = false;
-    int8_t houseId = -1;
-    int8_t currentPlayer = -1;
-    uint32_t currentBid = 0;
-    int8_t highestBidder = -1;
-};
-
 struct LiquidationDecision {
     bool active = false;
     int8_t playerId = -1;
@@ -85,5 +97,4 @@ struct Game{
     LiquidationDecision liquidation;
     bool jailCardActive = false;
     EventDecision eventDecision;
-    Auction auction;
 };

@@ -18,8 +18,4 @@ uint16_t GetRound(const Game& game);
 
 void NextRound(Game& game);
 
-bool InitPlayer(Game& game, Player newPlayer);
-
 uint8_t NextPlayer(Game& game);
-
-bool SetPlayer(Game& game, uint8_t index);

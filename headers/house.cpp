@@ -4,11 +4,8 @@
 #include "structs.hpp"
 #include "tabletop.hpp"
 #include "player.hpp"
+#include "events.hpp"
 
-
-House Constructor(const string& name, Color color, uint8_t value, uint8_t price, uint8_t tier, HSETYPE type){
-    return House{name, color, (uint8_t)type, value, price};
-}
 
 string GetName(const House& house){
     return house.name;
@@ -27,7 +24,7 @@ uint8_t GetHouseQnt(const House& house){
 }
 
 uint8_t GetValue(const Game& game, const House& house){
-        uint32_t value = 0;
+    uint32_t value = 0;
     if(house.type == NORMAL) {
         switch(house.housesBuilt) {
         case 0:
@@ -78,10 +75,6 @@ bool SetOwner(House& house, int8_t newOwner){
         house.owner = newOwner;
     }
     return lastOwner != house.owner;
-}
-
-void SetHouseColor(House& house, Color color){
-    house.color = color;
 }
 
 Color GetHouseColor(const House& house){
@@ -137,6 +130,21 @@ bool BuildHouse(Game& game, House& house, Player& player){
     } else {
         game.housesBuilt++;
     }
+
+    return true;
+}
+
+bool MortgageProperty(Game& game, Player& player, House& house) {
+    if(house.owner != player.ID)
+        return false;
+    if(house.housesBuilt != 0)
+        return false;
+    if(house.mortgaged)
+        return false;
+        
+    AddMoney(player, house.mortgagePrice);
+    house.mortgaged = true;
+    ResolvePayment(game);
 
     return true;
 }

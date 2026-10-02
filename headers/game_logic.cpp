@@ -10,13 +10,7 @@
 #include "filehandler.hpp"
 
 Game mainGame;
-Config mainConfig;
-
-bool rolledThisTurn = false;
-bool gameOver = false;
-string winnerName = "";
-
-bool pressedButton = false;
+Client client;
 
 string MoveAndTriggerEvent(Player& player, int dado1, int dado2, int total, const string& actorLabel){
     uint8_t maxHouses = GetHouseQnt(mainGame);
@@ -33,7 +27,7 @@ string MoveAndTriggerEvent(Player& player, int dado1, int dado2, int total, cons
     }
 
     House& house = GetHouse(mainGame, GetPos(player));
-    eventSelector(mainGame, house, player, (uint8_t)total);
+    EventSelector(mainGame, house, player, (uint8_t)total);
 
     string msg = actorLabel + " tirou " + to_string(dado1) + " e " + to_string(dado2)
                + " (" + to_string(total) + ") e caiu em " + house.name;
@@ -51,23 +45,23 @@ string MoveAndTriggerEvent(Player& player, int dado1, int dado2, int total, cons
 void Init(){
     SetRandomSeed((unsigned int)time(NULL));
     
-    ReadConfig(mainConfig);
+    ReadConfig(client.config);
 
-    Init(mainGame, mainConfig);
+    Init(mainGame, client.config);
 
-    ClearFile(mainConfig.PATH);
+    ClearFile(client.config.PATH);
 }
 
 void UpdatePre() {
-    if(IsInMenu()){
+    if(IsInMenu(client)){
         int num = GetKeyPressed();
         if(num >= KEY_ONE && num <= KEY_FIVE)
-            mainConfig.clientIndex = num - KEY_ONE; 
+            client.index = num - KEY_ONE; 
     }
-    if(pressedButton){
-        SendFile(mainGame, mainConfig.PATH);
+    if(client.pressedButton){
+        SendFile(mainGame, client.config.PATH);
     }
-    RetrieveFile(mainGame, mainConfig.PATH);
+    RetrieveFile(mainGame, client.config.PATH);
 }
 
 void Update(){
@@ -77,23 +71,23 @@ void UpdatePost(){
 }
 
 void Render3D(){
-    if(IsInMenu()) return;
+    if(IsInMenu(client)) return;
     RenderHouse(mainGame);
 }
 
 void Render2D(){
-    if(IsInMenu()){
-        RenderMenu(mainGame, mainConfig.clientIndex, mainConfig.PATH);
+    if(IsInMenu(client)){
+        RenderMenu(mainGame, client, client.config.PATH);
         return;
     }
     RenderRound(mainGame);
     RenderName(mainGame);
-    TurnAlert(mainGame, mainConfig.clientIndex);
+    TurnAlert(mainGame, client.index);
     RenderMoney(mainGame);
-    pressedButton = RenderButtons(mainGame, mainConfig.clientIndex);
+    client.pressedButton = RenderButtons(mainGame, client);
     RenderHouseInfo(mainGame);
-    if(gameOver){
-        string texto = "Fim de jogo! Vencedor: " + winnerName;
+    if(client.gameOver){
+        string texto = "Fim de jogo! Vencedor: " + client.winnerName;
         DrawText(texto.c_str(), 20, ScreenH / 2, 24, GOLD);
     }
 }
@@ -101,17 +95,17 @@ void Render2D(){
 void Debug(){
     std::cout << "Player: " << GetName(GetPlayer(mainGame)) << std::endl;
     std::cout << "House num: " << to_string(GetPos(GetPlayer(mainGame))) << std::endl;
-    std::cout << "Client Index: " << mainConfig.clientIndex << std::endl;
+    std::cout << "Client Index: " << client.index << std::endl;
 }
 
 string ActionRollDice(){
-    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+    if(client.index != GetID(GetPlayer(mainGame))){
         return "Jogue no seu turno!";
     }
-    if(gameOver){
-        return "O jogo ja acabou! Vencedor: " + winnerName;
+    if(client.gameOver){
+        return "O jogo ja acabou! Vencedor: " + client.winnerName;
     }
-    if(rolledThisTurn){
+    if(client.rolledThisTurn){
         return "Voce ja jogou os dados nesta rodada! Passe a vez.";
     }
 
@@ -138,21 +132,21 @@ string ActionRollDice(){
         }
 
         if(!saiu){
-            rolledThisTurn = true;
+            client.rolledThisTurn = true;
             return GetName(player) + " continua preso (tirou " + to_string(dado1) + " e " + to_string(dado2) + ")";
         }
 
         player.arrested = false;
-        rolledThisTurn = true;
+        client.rolledThisTurn = true;
         return MoveAndTriggerEvent(player, dado1, dado2, total, GetName(player) + " " + motivo + " e saiu da prisao,");
     }
 
-    rolledThisTurn = true;
+    client.rolledThisTurn = true;
     return MoveAndTriggerEvent(player, dado1, dado2, total, GetName(player));
 }
 
 string ActionBuy(){
-    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+    if(client.index != GetID(GetPlayer(mainGame))){
         return "Jogue no seu turno!";
     }
     if(mainGame.eventDecision.action != BUY){
@@ -172,7 +166,7 @@ string ActionBuy(){
 }
 
 string ActionBuild(){
-    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+    if(client.index != GetID(GetPlayer(mainGame))){
         return "Jogue no seu turno!";
     }
     Player& player = GetPlayer(mainGame);
@@ -187,7 +181,7 @@ string ActionBuild(){
 }
 
 string ActionMortgage(){
-    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+    if(client.index != GetID(GetPlayer(mainGame))){
         return "Jogue no seu turno!";
     }
     Player& player = GetPlayer(mainGame);
@@ -201,27 +195,27 @@ string ActionMortgage(){
 }
 
 string ActionNegotiate(){
-    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+    if(client.index != GetID(GetPlayer(mainGame))){
         return "Jogue no seu turno!";
     }
     return "Negociacao entre jogadores ainda nao implementada.";
 }
 
 string ActionEndTurn(){
-    if(mainConfig.clientIndex != GetID(GetPlayer(mainGame))){
+    if(client.index != GetID(GetPlayer(mainGame))){
         return "Jogue no seu turno!";
     }
-    if(gameOver){
-        return "O jogo ja acabou! Vencedor: " + winnerName;
+    if(client.gameOver){
+        return "O jogo ja acabou! Vencedor: " + client.winnerName;
     }
 
-    if(!rolledThisTurn){
+    if(!client.rolledThisTurn){
         return "Role os dados!";
     }
 
     string finishedName = GetName(GetPlayer(mainGame));
 
-    rolledThisTurn = false;
+    client.rolledThisTurn = false;
     mainGame.eventDecision.action = EVENT_ACTION::NONE;
     mainGame.eventDecision.houseId = -1;
 
@@ -235,9 +229,9 @@ string ActionEndTurn(){
     }
 
     if(alive <= 1){
-        gameOver = true;
-        winnerName = (lastAliveId != -1) ? GetName(mainGame.players[lastAliveId]) : "Ninguem";
-        return "Fim de jogo! " + winnerName + " venceu!";
+        client.gameOver = true;
+        client.winnerName = (lastAliveId != -1) ? GetName(mainGame.players[lastAliveId]) : "Ninguem";
+        return "Fim de jogo! " + client.winnerName + " venceu!";
     }
 
     uint8_t newIndex;

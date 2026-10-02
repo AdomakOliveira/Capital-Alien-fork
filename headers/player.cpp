@@ -51,3 +51,7 @@ bool SetHouse(Player& player, uint8_t index){
     player.houseIndex = index;
     return !player.houseIndex;
 }
+
+void Bankrupt(Player& player) {
+    player.bankrupt = true;
+}

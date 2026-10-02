@@ -54,25 +54,12 @@ void NextRound(Game& game){
     game.round++;
 }
 
-bool InitPlayer(Game& game, Player newPlayer){
-    GetPlayer(game) = newPlayer;
-    return true;
-}
-
 uint8_t NextPlayer(Game& game){
     do{
         ++game.playerIndex %= GetPlayerQnt(game);
     }
     while(GetPlayer(game).bankrupt);
     return game.playerIndex;
-}
-
-bool SetPlayer(Game& game, uint8_t index){
-    if(index > GetPlayerQnt(game)){
-        return false;
-    }
-    game.playerIndex = index;
-    return true;
 }
 
 void generateCards(Card cards_arr[], int FLAG) {

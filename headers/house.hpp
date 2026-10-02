@@ -1,15 +1,9 @@
 #pragma once                                                                                                                                                                                                                                                                    
 
 #include <string>
-#include "raylib.h"
 #include "structs.hpp"
-#include "utilities.hpp"
-
-House Constructor(const string& name, Color color, uint8_t value, uint8_t price, uint8_t tier, HSETYPE type);
 
 bool SetOwner(House& house, int8_t newOwner);
-
-void SetHouseColor(House& house, Color color);
 
 Color GetHouseColor(const House& house);
 
@@ -30,3 +24,5 @@ uint8_t GetValue(const Game& game, const House& house);
 uint8_t GetResidencePrice(const House& house);
 
 uint8_t GetHouseQnt(const House& house);
+
+bool MortgageProperty(Game& game, Player& player, House& house);

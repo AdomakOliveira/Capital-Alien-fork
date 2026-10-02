@@ -4,7 +4,6 @@
 #include "house.hpp"
 #include "tabletop.hpp"
 #include "constants.hpp"
-#include "filehandler.hpp"
 #include <iostream>
 
 using namespace std;
@@ -60,15 +59,11 @@ void RenderMoney(Game game){
     DrawText(texto.c_str(), ScreenW - 190, 75, 24, DARKGREEN);
 }
 
-
-bool emMenu = true;
-int opcaoMenu = 0;
-
-bool IsInMenu(){
-    return emMenu;
+bool IsInMenu(const Client& client){
+    return client.menu.active;
 }
 
-void RenderMenu(Game& game, int clientIndex, string& PATH){
+void RenderMenu(Game& game, Client& client, string& PATH){
     ClearBackground(BLACK);
     DrawRectangleLines(15, 15, ScreenW - 30, ScreenH - 30, DARKGREEN);
 
@@ -89,10 +84,10 @@ void RenderMenu(Game& game, int clientIndex, string& PATH){
     DrawText("CAPITAL ALIEN - BANCO IMOBILIARIO", (ScreenW - larguraSub) / 2, bannerY + 95, 16, YELLOW);
     
     if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_W) || IsKeyPressed(KEY_S)){
-        if (opcaoMenu == 0){
-            opcaoMenu = 1;
+        if (client.menu.option == 0){
+            client.menu.option = 1;
         } else {
-            opcaoMenu = 0;
+            client.menu.option = 0;
         }
     }
     
@@ -103,10 +98,10 @@ void RenderMenu(Game& game, int clientIndex, string& PATH){
     bool mouseEmJogar = CheckCollisionPointRec(mouse, botaoJogar);
     bool mouseEmSair  = CheckCollisionPointRec(mouse, botaoSair);
     
-    if (mouseEmJogar) opcaoMenu = 0;
-    if (mouseEmSair)  opcaoMenu = 1;
+    if (mouseEmJogar) client.menu.option = 0;
+    if (mouseEmSair)  client.menu.option = 1;
     
-    if (opcaoMenu == 0){
+    if (client.menu.option == 0){
         DrawRectangleRec(botaoJogar, DARKGREEN);
         DrawRectangleLines(botaoJogar.x, botaoJogar.y, botaoJogar.width, botaoJogar.height, GOLD);
         DrawText("> JOGAR <", botaoJogar.x + 65, botaoJogar.y + 12, 20, YELLOW);
@@ -116,7 +111,7 @@ void RenderMenu(Game& game, int clientIndex, string& PATH){
         DrawText("JOGAR", botaoJogar.x + 80, botaoJogar.y + 12, 20, WHITE);
     }
     
-    if (opcaoMenu == 1){
+    if (client.menu.option == 1){
         DrawRectangleRec(botaoSair, MAROON);
         DrawRectangleLines(botaoSair.x, botaoSair.y, botaoSair.width, botaoSair.height, GOLD);
         DrawText("> SAIR <", botaoSair.x + 75, botaoSair.y + 12, 20, YELLOW);
@@ -131,20 +126,16 @@ void RenderMenu(Game& game, int clientIndex, string& PATH){
     
     bool clicou = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
     if (IsKeyPressed(KEY_ENTER) || (clicou && (mouseEmJogar || mouseEmSair))){
-        if (opcaoMenu == 0){
-            emMenu = false;
-        } else if (opcaoMenu == 1){
+        if (client.menu.option == 0){
+            client.menu.active = false;
+        } else if (client.menu.option == 1){
             CloseWindow();
             exit(0);
         }
     }
-    string indexText = "" + clientIndex;
+    string indexText = "" + client.index;
     DrawText(indexText.c_str(), ScreenW - 40, 20, 20, WHITE);
 }
-
-
-string mensagemFeedback = "";
-float tempoFeedback = 0.0f;
 
 bool BotaoAcao(Rectangle area, const char* texto){
     Vector2 mouse = GetMousePosition();
@@ -166,7 +157,7 @@ bool BotaoAcao(Rectangle area, const char* texto){
     return false;
 }
 
-bool RenderButtons(Game& game, int clientIndex){
+bool RenderButtons(Game& game, Client& client){
     int largura = 125;
     int altura = 40;
     int espaco = 8;
@@ -174,37 +165,37 @@ bool RenderButtons(Game& game, int clientIndex){
     int yLinha = ScreenH - 55;
 
     if (BotaoAcao({(float)(xInicial + 0 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "JOGAR DADO")){
-        mensagemFeedback = ActionRollDice();
-        tempoFeedback = 3.0f;
+        client.feedback.message = ActionRollDice();
+        client.feedback.time = 3.0f;
     }
 
     if (BotaoAcao({(float)(xInicial + 1 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "COMPRAR")){
-        mensagemFeedback = ActionBuy();
-        tempoFeedback = 3.0f;
+        client.feedback.message = ActionBuy();
+        client.feedback.time = 3.0f;
     }
 
     if (BotaoAcao({(float)(xInicial + 2 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "CONSTRUIR")){
-        mensagemFeedback = ActionBuild();
-        tempoFeedback = 3.0f;
+        client.feedback.message = ActionBuild();
+        client.feedback.time = 3.0f;
     }
 
     if (BotaoAcao({(float)(xInicial + 3 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "HIPOTECAR")){
-        mensagemFeedback = ActionMortgage();
-        tempoFeedback = 3.0f;
+        client.feedback.message = ActionMortgage();
+        client.feedback.time = 3.0f;
     }
 
     if (BotaoAcao({(float)(xInicial + 4 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "NEGOCIAR")){
-        mensagemFeedback = ActionNegotiate();
-        tempoFeedback = 3.0f;
+        client.feedback.message = ActionNegotiate();
+        client.feedback.time = 3.0f;
     }
 
     if (BotaoAcao({(float)(xInicial + 5 * (largura + espaco)), (float)yLinha, (float)largura, (float)altura}, "PASSAR VEZ")){
-        mensagemFeedback = ActionEndTurn();
-        tempoFeedback = 3.0f;
+        client.feedback.message = ActionEndTurn();
+        client.feedback.time = 3.0f;
     }
 
-    if (tempoFeedback > 0.0f){
-        tempoFeedback = tempoFeedback - GetFrameTime();
+    if (client.feedback.time > 0.0f){
+        client.feedback.time = client.feedback.time - GetFrameTime();
         
         int caixaLargura = 420;
         int caixaAltura = 32;
@@ -214,9 +205,9 @@ bool RenderButtons(Game& game, int clientIndex){
         DrawRectangle(caixaX, caixaY, caixaLargura, caixaAltura, BLACK);
         DrawRectangleLines(caixaX, caixaY, caixaLargura, caixaAltura, GOLD);
         
-        int larguraMsg = MeasureText(mensagemFeedback.c_str(), 16);
-        DrawText(mensagemFeedback.c_str(), caixaX + (caixaLargura - larguraMsg) / 2, caixaY + 8, 16, YELLOW);
-        return tempoFeedback >= 2.8;
+        int larguraMsg = MeasureText(client.feedback.message.c_str(), 16);
+        DrawText(client.feedback.message.c_str(), caixaX + (caixaLargura - larguraMsg) / 2, caixaY + 8, 16, YELLOW);
+        return client.feedback.time >= 2.8;
     }
     return false;
 }
