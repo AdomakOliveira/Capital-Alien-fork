@@ -37,7 +37,7 @@ HSETYPE StringToEnum1(string enumName) {
     if(enumName == "CHEST") return HSETYPE::CHEST;
     if(enumName == "PARK") return HSETYPE::PARK;
 
-    return NORMAL;
+    return HSETYPE::NORMAL;
 }
 
 CARD_ACTION StringToEnum2(string enumName) {
@@ -55,7 +55,7 @@ CARD_ACTION StringToEnum2(string enumName) {
     if(enumName == "COLLECT_FROM_EACH_PLAYER") return CARD_ACTION::COLLECT_FROM_EACH_PLAYER;
     if(enumName == "MOVE_RECEIVE_IF") return CARD_ACTION::MOVE_RECEIVE_IF;
 
-    return MOVE_TO;
+    return CARD_ACTION::MOVE_TO;
 }
 
 House readFile(string line) {
